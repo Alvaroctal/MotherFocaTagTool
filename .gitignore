@@ -13,3 +13,6 @@ hs_err_pid*
 
 # IntelliJ IDEA config folder
 .idea
+
+# IntelliJ IDEA config file
+*.iml
