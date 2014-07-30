@@ -17,15 +17,15 @@ import java.util.regex.Pattern;
 
 public class ListaPeliculas {
 
-    public void Listador(){
+    public void ListaPeliculas(){
 
         // Construtor nulo
 
     }
 
-    public JSONObject listaPeliculas(JTextArea textArea, String path, JSONObject jsonFile) throws FileNotFoundException, UnsupportedEncodingException {
+    public JSONObject creaIndice (JTextArea textArea, String path, JSONObject jsonPeliculas) throws FileNotFoundException, UnsupportedEncodingException {
 
-        // Variables temporales de bedug
+        // Variables temporales de debug
 
         boolean showOnlyFails = false, falloDetectado = false;
 
@@ -38,19 +38,19 @@ public class ListaPeliculas {
 
         JSONObject peliculas;
 
-        if (! jsonFile.has("Peliculas")) {
+        if (! jsonPeliculas.has("Peliculas")) {
 
             // El json no contiene ninguna lista de peliculas
 
             peliculas = new JSONObject();
-            jsonFile.put("Peliculas", peliculas);
+            jsonPeliculas.put("Peliculas", peliculas);
         }
         else{
 
             // EL json contiene una lista de peliculas
 
-            peliculas = jsonFile.getJSONObject("Peliculas");
-            jsonFile.put("Peliculas", peliculas);
+            peliculas = jsonPeliculas.getJSONObject("Peliculas");
+            jsonPeliculas.put("Peliculas", peliculas);
         }
 
         // Patron
@@ -85,7 +85,7 @@ public class ListaPeliculas {
 
                 // Nos deplazamos al directorio
 
-                subPath = path + nombreDirectorio + "/";
+                subPath = path + nombreDirectorio + File.separator;
 
                 File subFolder = new File(subPath);
                 File[] listOfFilesInFolder = subFolder.listFiles();
@@ -194,7 +194,7 @@ public class ListaPeliculas {
 
         // Devolvemos el json al programa principal
 
-        return jsonFile;
+        return jsonPeliculas;
     }
 }
 
