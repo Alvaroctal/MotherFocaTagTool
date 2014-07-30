@@ -4,8 +4,6 @@ import MotherFocaTagTool.org.json.JSONArray;
 import MotherFocaTagTool.org.json.JSONObject;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -101,26 +99,130 @@ class Listador extends JFrame implements ActionListener{
         JScrollPane scrollpane = new JScrollPane(lista);
 
         lista.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        lista.addListSelectionListener(new ListSelectionListener() {
-
-            // Escuhador de campo seleccionado
-
-            public void valueChanged(ListSelectionEvent le) {
-            int idx = lista.getSelectedIndex();
-            if (idx != -1)
-                System.out.println("Current selection: " + listaDirectorios.get(idx));
-            else
-                System.out.println("[error] Campo no valido");
-            }
-        });
 
         panelLista.add(scrollpane, BorderLayout.EAST);
 
         // Añadir
 
         añadir = new JButton("Añadir");
-        añadir.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent ae) {
+        añadir.addActionListener(this);
+        panelLista.add(añadir, BorderLayout.SOUTH);
+
+        // Quitar
+
+        quitar = new JButton("Quitar");
+        quitar.addActionListener(this);
+        panelLista.add(quitar, BorderLayout.SOUTH);
+
+        // Indice
+
+        indexar = new JButton("Indexar");
+        indexar.addActionListener(this);
+        panelLista.add(indexar, BorderLayout.SOUTH);
+
+
+        //------------------------------------------------------------------------------
+        //  Comprobacion de configuracion previa
+        //------------------------------------------------------------------------------
+
+        if(configFile.exists() && !configFile.isDirectory()) {
+
+            // Existe
+
+            jsonConfig = new JSONObject(new String(Files.readAllBytes(Paths.get(configFileDir))));
+
+            if (jsonConfig.has("Directorios")){
+
+                // Obtenemos el JsonArray del JsonObject
+
+                jsonStoredDirs = jsonConfig.getJSONArray("Directorios");
+
+                for (int i = 0; i < jsonStoredDirs.length(); i++){
+
+                    // Añadimos a la lista uno a uno los elementos del array de directorios
+
+                    listaDirectorios.addElement(jsonStoredDirs.getString(i));
+                }
+
+                lista.setModel( listaDirectorios );
+                textArea.append("[done] Se ha cargado la configuracion\n");
+            }
+            else{
+                textArea.append("[error] Fichero de configuracion existe, pero no contiene directorios\n");
+            }
+        }
+        else{
+
+            // No existe
+
+            textArea.append("[info] No existe fichero de configuracion");
+
+            jsonConfig = new JSONObject();
+            jsonStoredDirs = new JSONArray();
+
+        }
+
+        jsonConfig.put("Directorios", jsonStoredDirs);
+    }
+
+    //------------------------------------------------------------------------------
+    //  Escuchador
+    //------------------------------------------------------------------------------
+
+    public void actionPerformed(ActionEvent evento) {
+
+        //--------------------------------------------------------------------------------
+        //  Escuhador de indexar
+        //--------------------------------------------------------------------------------
+
+        if ( evento.getSource() == indexar ) {
+
+            // Se ha pulsado el boton de indexar
+            if (listaDirectorios.size() == 0) {
+                textArea.append("No existen directorios a indexar\n");
+            }
+            else{
+
+                for (int i = 0; i < listaDirectorios.size(); i++) {
+
+                    // Obtenemos el i directorio de la lista
+
+                    String directorio = (String) listaDirectorios.get(i) + File.separator;
+                    textArea.append("Indexando (" + ((i + 1)) + File.separator + listaDirectorios.size() + "): " + directorio);
+                    try {
+
+                        // Para cada directorio de la lista obtenemos la lista de peliclas en foma de json
+
+                        jsonPeliculas = listaPeliculas.creaIndice(textArea, directorio, jsonPeliculas);
+
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
+                    textArea.append(" (Done)\n");
+                }
+
+                // Escribimos el json en el fichero json de peliclas
+
+                PrintWriter writer = null;
+                try {
+                    writer = new PrintWriter( System.getProperty("user.home") + File.separator + "peliculas.json", "UTF-8");
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+                writer.println(jsonPeliculas.toString());
+                writer.close();
+            }
+        }
+
+        //------------------------------------------------------------------------------
+        //  Escuchador de Añadir
+        //------------------------------------------------------------------------------
+
+        else if ( evento.getSource() == añadir ) {
 
             // Configuramos el selector de directorios
 
@@ -161,105 +263,15 @@ class Listador extends JFrame implements ActionListener{
                 writer.println(jsonConfig.toString());
                 writer.close();
             }
-            }
-        });
-
-        panelLista.add(añadir, BorderLayout.SOUTH);
-
-        // Quitar
-
-        quitar = new JButton("Quitar");
-        quitar.addActionListener(this);
-        panelLista.add(quitar, BorderLayout.SOUTH);
-
-        // Indice
-
-        indexar = new JButton("Indexar");
-        indexar.addActionListener(this);
-        panelLista.add(indexar, BorderLayout.SOUTH);
-
+        }
 
         //------------------------------------------------------------------------------
-        //  Comprobacion de configuracion previa
+        //  Escuchador de Quitar
         //------------------------------------------------------------------------------
 
-        if(configFile.exists() && !configFile.isDirectory()) {
-
-            // Existe
-
-            jsonConfig = new JSONObject(new String(Files.readAllBytes(Paths.get(configFileDir))));
-
-            if (jsonConfig.has("Directorios")){
-                jsonStoredDirs = jsonConfig.getJSONArray("Directorios");
-                for (int i = 0; i < jsonStoredDirs.length(); i++){
-                    listaDirectorios.addElement(jsonStoredDirs.getString(i));
-                }
-                lista.setModel( listaDirectorios );
-                textArea.append("[done] Se ha cargado la configuracion\n");
-            }
-            else{
-                textArea.append("[error] Fichero de configuracion existe, pero no contiene directorios\n");
-            }
-        }
-        else{
-
-            // No existe
-
-            textArea.append("[info] No existe fichero de configuracion");
-
-            jsonConfig = new JSONObject();
-            jsonStoredDirs = new JSONArray();
-
-        }
-
-        jsonConfig.put("Directorios", jsonStoredDirs);
-    }
-
-    //------------------------------------------------------------------------------
-    //  Escuchador
-    //------------------------------------------------------------------------------
-
-    public void actionPerformed(ActionEvent evento) {
-
-        //--------------------------------------------------------------------------------
-        //  Añadimos las acciones para los eventos del panel de numeros
-        //--------------------------------------------------------------------------------
-
-        if ( evento.getSource() == indexar ) {
-
-            // Se ha pulsado el boton de indexar
-            if (listaDirectorios.size() == 0) {
-                textArea.append("No existen directorios a indexar\n");
-            }
-            else{
-
-                for (int i = 0; i < listaDirectorios.size(); i++) {
-                    String directorio = (String) listaDirectorios.get(i) + File.separator;
-                    textArea.append("Indexando (" + ((i + 1)) + File.separator + listaDirectorios.size() + "): " + directorio);
-                    try {
-                        jsonPeliculas = listaPeliculas.creaIndice(textArea, directorio, jsonPeliculas);
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
-                    textArea.append(" (Done)\n");
-                }
-
-                PrintWriter writer = null;
-                try {
-                    writer = new PrintWriter("/Users/Alvaro/Desktop/data.json", "UTF-8");
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-                writer.println(jsonPeliculas.toString());
-                writer.close();
-            }
-        }
         else if ( evento.getSource() == quitar ) {
-            System.out.print("Quitar: (" + lista.getSelectedIndex() + ") " + listaDirectorios.get(lista.getSelectedIndex()) + "\n");
+
+            // Se ha pulsado el boton de quitar
 
             listaDirectorios.removeElementAt(lista.getSelectedIndex());
             lista.setModel( listaDirectorios );
