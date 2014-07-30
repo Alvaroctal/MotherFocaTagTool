@@ -1,4 +1,6 @@
-import org.json.JSONObject;
+package MotherFocaTagTool;
+
+import MotherFocaTagTool.org.json.JSONObject;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;

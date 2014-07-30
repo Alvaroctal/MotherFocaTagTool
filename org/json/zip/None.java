@@ -1,4 +1,4 @@
-package org.json.zip;
+package MotherFocaTagTool.org.json.zip;
 
 /**
  * None is an interface that makes the constant <i>none</i> (short for

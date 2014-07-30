@@ -1,6 +1,6 @@
-package org.json.zip;
+package MotherFocaTagTool.org.json.zip;
 
-import org.json.JSONException;
+import MotherFocaTagTool.org.json.JSONException;
 
 /*
  Copyright (c) 2013 JSON.org

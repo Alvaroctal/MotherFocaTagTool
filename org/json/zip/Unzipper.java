@@ -1,9 +1,9 @@
-package org.json.zip;
+package MotherFocaTagTool.org.json.zip;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.Kim;
+import MotherFocaTagTool.org.json.JSONArray;
+import MotherFocaTagTool.org.json.JSONException;
+import MotherFocaTagTool.org.json.JSONObject;
+import MotherFocaTagTool.org.json.Kim;
 
 /*
  Copyright (c) 2012 JSON.org

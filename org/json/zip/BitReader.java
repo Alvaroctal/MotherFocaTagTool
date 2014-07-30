@@ -1,4 +1,4 @@
-package org.json.zip;
+package MotherFocaTagTool.org.json.zip;
 
 import java.io.IOException;
 

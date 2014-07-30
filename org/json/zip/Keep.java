@@ -1,8 +1,8 @@
-package org.json.zip;
+package MotherFocaTagTool.org.json.zip;
 
 import java.util.HashMap;
 
-import org.json.Kim;
+import MotherFocaTagTool.org.json.Kim;
 
 /*
  Copyright (c) 2013 JSON.org

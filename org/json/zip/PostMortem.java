@@ -1,4 +1,4 @@
-package org.json.zip;
+package MotherFocaTagTool.org.json.zip;
 
 /*
  Copyright (c) 2013 JSON.org
