@@ -45,7 +45,6 @@ class Listador extends JFrame {
         topPanel.setLayout(new BorderLayout());
         getContentPane().add(topPanel);
 
-
         //------------------------------------------------------------------------------
         //  Crear Paneles
         //------------------------------------------------------------------------------
@@ -73,8 +72,8 @@ class Listador extends JFrame {
         //  Crear las pestañas
         //------------------------------------------------------------------------------
 
-        crearPanelSeries();
         crearPanelPeliculas();
+        crearPanelSeries();
 
         tabbedPane.addTab("Peliculas", panelPeliculas);
         tabbedPane.addTab("Series", panelSeries);

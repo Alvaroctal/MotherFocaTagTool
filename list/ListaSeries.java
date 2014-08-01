@@ -134,7 +134,7 @@ public class ListaSeries {
                                         serie.capituloDir = serie.temporadaDir + File.separator + serie.nombreCapitulo;
                                         serie.capituloFile = new File(serie.capituloDir);
 
-                                        if (matcherTemporadas.group(1) != matcherTemporadas.group(1)) {
+                                        if (! matcherTemporadas.group(1).toString().equals(matcherCapitulos.group(1))) {
 
                                             // Si un capitulo no esta en su temporada
 
@@ -147,7 +147,7 @@ public class ListaSeries {
 
                                         // Un capitulo no cumple el patron
 
-                                        log.append("NO MATCH - (" + serie.temporadaDir + File.separator + serie.nombreCapitulo + ")\n");
+                                        log.append("NO MATCH - (" + serie.nombreCapitulo + ")\n");
                                     }
                                 }
                                 else if (serie.listaCapitulos[k].isDirectory()){

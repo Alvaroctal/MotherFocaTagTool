@@ -2,8 +2,6 @@ package MotherFocaTagTool.list.data;
 
 import MotherFocaTagTool.org.json.JSONObject;
 
-import javax.swing.*;
-import java.awt.*;
 import java.io.File;
 
 /**

@@ -66,6 +66,7 @@ public class SeriesGUI extends Component implements ActionListener {
         lista = new JList(listaDirectorios);
         scrollLista = new JScrollPane(lista);
         lista.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        scrollLista.setPreferredSize(new Dimension(265, 200));
         panel.add(scrollLista);
 
         // Añadir
@@ -80,7 +81,7 @@ public class SeriesGUI extends Component implements ActionListener {
         quitar.addActionListener(this);
         panel.add(quitar, BorderLayout.SOUTH);
 
-        // Indice
+        // Indexar
 
         indexar = new JButton("Indexar");
         indexar.addActionListener(this);
@@ -160,7 +161,9 @@ public class SeriesGUI extends Component implements ActionListener {
 
         if (evento.getSource() == indexar) {
 
-            // Se ha pulsado el boton de indexar
+            // Se ha pulsado el boton de indexar, limpiamos el log
+
+            log.setText(null);
 
             if (listaDirectorios.size() == 0) {
                 log.append("No existen directorios a indexar\n");
@@ -174,7 +177,7 @@ public class SeriesGUI extends Component implements ActionListener {
 
                     // Obtenemos el i directorio de la lista
 
-                    String directorio = (String) listaDirectorios.get(i) + File.separator;
+                    String directorio = (String) listaDirectorios.get(i);
                     log.append("Indexando (" + ((i + 1)) + File.separator + listaDirectorios.size() + "): " + directorio);
                     try {
 

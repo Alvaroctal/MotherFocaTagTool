@@ -1,12 +1,12 @@
 package MotherFocaTagTool.list;
 
+import MotherFocaTagTool.list.data.Pelicula;
 import MotherFocaTagTool.org.json.JSONObject;
 
 import javax.swing.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
-import java.util.LinkedHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,8 +28,6 @@ public class ListaPeliculas {
         // Variables temporales de debug
 
         boolean showOnlyFails = false, falloDetectado = false;
-
-        String subPath, nombreArchivo, nombreDirectorio;
 
         File folder = new File(path);
         File[] listOfFiles = folder.listFiles();
@@ -53,10 +51,6 @@ public class ListaPeliculas {
             jsonPeliculas.put("Peliculas", peliculas);
         }
 
-        // Patron
-
-        String patron = "([0-9a-zA-Zá-ú-ñ\\- ]*) \\(([0-9]*)\\) \\[([0-9]*)\\] \\[(Dual|Cast|Vose)\\]";
-
         if (! showOnlyFails) {
 
             // Si el checkbox de mostrar log completo esta marcado
@@ -67,59 +61,55 @@ public class ListaPeliculas {
 
         for (int i = 0; i < listOfFiles.length; i++) {
 
+            Pelicula pelicula = new Pelicula();
+
             if (listOfFiles[i].isDirectory()){
 
                 // Parte para tratar directorios
 
-                nombreDirectorio = listOfFiles[i].getName();
+                pelicula.nombreSaga = listOfFiles[i].getName();
 
                 if (! showOnlyFails) {
 
-                    log.append("+-+ " + nombreDirectorio + "\n");
+                    log.append("+-+ " + pelicula.nombreSaga + "\n");
                     log.setCaretPosition(log.getDocument().getLength());
                 }
 
                 // Creamos la saga
 
-                LinkedHashMap saga = new LinkedHashMap();
+                pelicula.jsonSaga = new JSONObject();
 
                 // Nos deplazamos al directorio
 
-                subPath = path + nombreDirectorio + File.separator;
+                pelicula.sagaDir = path + File.separator + pelicula.nombreSaga;
 
-                File subFolder = new File(subPath);
-                File[] listOfFilesInFolder = subFolder.listFiles();
+                pelicula.sagaFile = new File(pelicula.sagaDir);
+                pelicula.listaSaga = pelicula.sagaFile.listFiles();
 
                 // Listar archivos del directorio
 
-                for (int j = 0; j < listOfFilesInFolder.length; j++) {
+                for (int j = 0; j < pelicula.listaSaga.length; j++) {
 
                     // Parte para tratar ficheros
 
-                    nombreArchivo = listOfFilesInFolder[j].getName();
+                    pelicula.nombrePelicula = pelicula.listaSaga[j].getName();
 
                     // Crear el objeto del patron
 
-                    Pattern pattern = Pattern.compile(patron);
-
-                    // Inserta el string en el patron
-
-                    Matcher m = pattern.matcher(nombreArchivo);
-
-                    // Comprueba si el string cuadra en el patron
-
+                    Pattern pattern = Pattern.compile(pelicula.patron);
+                    Matcher m = pattern.matcher(pelicula.nombrePelicula);
                     if (m.find( )) {
 
                         // Creamos un nuevo array, una pelicula
 
-                        LinkedHashMap pelicula = new LinkedHashMap();
-                        pelicula.put("año", m.group(2));
-                        pelicula.put("definicion", m.group(3));
-                        pelicula.put("audio", m.group(4));
+                        pelicula.jsonPelicula = new JSONObject();
+                        pelicula.jsonPelicula.put("año", m.group(2));
+                        pelicula.jsonPelicula.put("definicion", m.group(3));
+                        pelicula.jsonPelicula.put("audio", m.group(4));
 
                         // Linkamos la pelicula a la saga
 
-                        saga.put(m.group(1), pelicula);
+                        pelicula.jsonSaga.put(m.group(1), pelicula.jsonPelicula);
 
                         if (! showOnlyFails) {
 
@@ -138,14 +128,14 @@ public class ListaPeliculas {
                             falloDetectado = true;
                         }
 
-                        log.append("NO MATCH - (" + nombreArchivo + ")\n");// - (" + patron + ")\n");
+                        log.append("NO MATCH - (" + pelicula.listaSaga[j].getAbsolutePath() + ")\n");// - (" + patron + ")\n");
                         log.setCaretPosition(log.getDocument().getLength());
                     }
                 }
 
                 // Linkamos la saga a la lista de peliculas
 
-                peliculas.put(nombreDirectorio, saga);
+                peliculas.put(pelicula.nombreSaga, pelicula.jsonSaga);
 
 
             }
@@ -153,28 +143,22 @@ public class ListaPeliculas {
 
                 // Parte para tratar ficheros
 
-                nombreArchivo = listOfFiles[i].getName();
+                pelicula.nombrePelicula = listOfFiles[i].getName();
 
                 // Crear el objeto del patron
 
-                Pattern pattern = Pattern.compile(patron);
-
-                // Inserta el string en el patron
-
-                Matcher m = pattern.matcher(nombreArchivo);
-
-                // Comprueba si el string cuadra en el patron
-
+                Pattern pattern = Pattern.compile(pelicula.patron);
+                Matcher m = pattern.matcher(pelicula.nombrePelicula);
                 if (m.find( )) {
 
                     // Creamos un nuevo array, una pelicula
 
-                    LinkedHashMap pelicula = new LinkedHashMap();
-                    pelicula.put("año", m.group(2));
-                    pelicula.put("definicion", m.group(3));
-                    pelicula.put("audio", m.group(4));
+                    pelicula.jsonPelicula = new JSONObject();
+                    pelicula.jsonPelicula.put("Año", m.group(2));
+                    pelicula.jsonPelicula.put("Definicion", m.group(3));
+                    pelicula.jsonPelicula.put("Audio", m.group(4));
 
-                    peliculas.put(m.group(1), pelicula);
+                    peliculas.put(m.group(1), pelicula.jsonPelicula);
                     if (! showOnlyFails) {
                         log.append(" | [done] " + m.group(1) + "\n");
                         log.setCaretPosition(log.getDocument().getLength());
@@ -186,7 +170,7 @@ public class ListaPeliculas {
                         falloDetectado = true;
                     }
 
-                    log.append("[warn] NO MATCH - (" + nombreArchivo + ")\n"); // - (" + patron + ")\n");
+                    log.append("NO MATCH - (" + listOfFiles[i].getAbsolutePath() + ")\n");
                     log.setCaretPosition(log.getDocument().getLength());
                 }
             }
