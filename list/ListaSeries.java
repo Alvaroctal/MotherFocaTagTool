@@ -141,8 +141,8 @@ public class ListaSeries {
                                             log.append("[warn] Directorio incorrecto (" + serie.capituloFile.getAbsolutePath() + ")\n");
                                         }
 
-                                        serie.jsonCapitulo.put("Numero", matcherTemporadas.group(2));
-                                        serie.jsonCapitulo.put("Titulo", matcherTemporadas.group(3));
+                                        serie.jsonCapitulo.put("Numero", matcherCapitulos.group(2));
+                                        serie.jsonCapitulo.put("Titulo", matcherCapitulos.group(3));
                                     } else {
 
                                         // Un capitulo no cumple el patron
