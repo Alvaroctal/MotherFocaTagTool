@@ -1,4 +1,4 @@
-package MotherFocaTagTool;
+package MotherFocaTagTool.list;
 
 import MotherFocaTagTool.org.json.JSONObject;
 
@@ -23,7 +23,7 @@ public class ListaPeliculas {
 
     }
 
-    public JSONObject creaIndice (JTextArea textArea, String path, JSONObject jsonPeliculas) throws FileNotFoundException, UnsupportedEncodingException {
+    public JSONObject creaIndice (JTextArea log, String path, JSONObject jsonPeliculas) throws FileNotFoundException, UnsupportedEncodingException {
 
         // Variables temporales de debug
 
@@ -61,8 +61,8 @@ public class ListaPeliculas {
 
             // Si el checkbox de mostrar log completo esta marcado
 
-            textArea.append("\n+ " + path + "\n | \n");
-            textArea.setCaretPosition(textArea.getDocument().getLength());
+            log.append("\n+ " + path + "\n | \n");
+            log.setCaretPosition(log.getDocument().getLength());
         }
 
         for (int i = 0; i < listOfFiles.length; i++) {
@@ -75,8 +75,8 @@ public class ListaPeliculas {
 
                 if (! showOnlyFails) {
 
-                    textArea.append("+-+ " + nombreDirectorio + "\n");
-                    textArea.setCaretPosition(textArea.getDocument().getLength());
+                    log.append("+-+ " + nombreDirectorio + "\n");
+                    log.setCaretPosition(log.getDocument().getLength());
                 }
 
                 // Creamos la saga
@@ -125,8 +125,8 @@ public class ListaPeliculas {
 
                             // Si el checkbox de mostrar log completo esta marcado
 
-                            textArea.append(" |   | [done] " + m.group(1) + "\n");
-                            textArea.setCaretPosition(textArea.getDocument().getLength());
+                            log.append(" |   | [done] " + m.group(1) + "\n");
+                            log.setCaretPosition(log.getDocument().getLength());
                         }
 
                     } else {
@@ -134,12 +134,12 @@ public class ListaPeliculas {
                         // Si no cuadra
 
                         if (! falloDetectado) {
-                            textArea.append("\n");
+                            log.append("\n");
                             falloDetectado = true;
                         }
 
-                        textArea.append("NO MATCH - (" + nombreArchivo + ")\n");// - (" + patron + ")\n");
-                        textArea.setCaretPosition(textArea.getDocument().getLength());
+                        log.append("NO MATCH - (" + nombreArchivo + ")\n");// - (" + patron + ")\n");
+                        log.setCaretPosition(log.getDocument().getLength());
                     }
                 }
 
@@ -176,18 +176,18 @@ public class ListaPeliculas {
 
                     peliculas.put(m.group(1), pelicula);
                     if (! showOnlyFails) {
-                        textArea.append(" | [done] " + m.group(1) + "\n");
-                        textArea.setCaretPosition(textArea.getDocument().getLength());
+                        log.append(" | [done] " + m.group(1) + "\n");
+                        log.setCaretPosition(log.getDocument().getLength());
                     }
                 } else {
 
                     if (! falloDetectado) {
-                        textArea.append("\n");
+                        log.append("\n");
                         falloDetectado = true;
                     }
 
-                    textArea.append("[warn] NO MATCH - (" + nombreArchivo + ")\n"); // - (" + patron + ")\n");
-                    textArea.setCaretPosition(textArea.getDocument().getLength());
+                    log.append("[warn] NO MATCH - (" + nombreArchivo + ")\n"); // - (" + patron + ")\n");
+                    log.setCaretPosition(log.getDocument().getLength());
                 }
             }
         }

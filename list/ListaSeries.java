@@ -1,7 +1,9 @@
-package MotherFocaTagTool;
+package MotherFocaTagTool.list;
 
+import MotherFocaTagTool.list.data.Serie;
 import MotherFocaTagTool.org.json.JSONObject;
 
+import javax.swing.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
@@ -21,7 +23,7 @@ public class ListaSeries {
 
     }
 
-    public JSONObject creaIndice (String path, JSONObject jsonSeries) throws FileNotFoundException, UnsupportedEncodingException {
+    public JSONObject creaIndice (JTextArea log, String path, JSONObject jsonSeries) throws FileNotFoundException, UnsupportedEncodingException {
 
         // Variables temporales de debug
 
@@ -34,29 +36,29 @@ public class ListaSeries {
 
         // Json
 
-        JSONObject peliculas;
+        JSONObject series;
 
         if (! jsonSeries.has("Series")) {
 
             // El json no contiene ninguna lista de peliculas
 
-            peliculas = new JSONObject();
-            jsonSeries.put("Series", peliculas);
+            series = new JSONObject();
+            jsonSeries.put("Series", series);
         }
         else{
 
             // EL json contiene una lista de peliculas
 
-            peliculas = jsonSeries.getJSONObject("Series");
-            jsonSeries.put("Series", peliculas);
+            series = jsonSeries.getJSONObject("Series");
+            jsonSeries.put("Series", series);
         }
 
         if (! showOnlyFails) {
 
             // Si el checkbox de mostrar log completo esta marcado
 
-            //textArea.append("\n+ " + path + "\n | \n");
-            //textArea.setCaretPosition(textArea.getDocument().getLength());
+            log.append("\n+ " + path + "\n | \n");
+            log.setCaretPosition(log.getDocument().getLength());
         }
 
         for (int i = 0; i < listOfFiles.length; i++) {
@@ -70,7 +72,7 @@ public class ListaSeries {
                 // Creamos un nuevo arbol, una serie
 
                 serie.jsonSerie = new JSONObject();
-                jsonSeries.put(serie.nombreSerie, serie.jsonSerie);
+                series.put(serie.nombreSerie, serie.jsonSerie);
 
                 // Nos deplazamos a la serie
 
@@ -95,11 +97,10 @@ public class ListaSeries {
                             // Creamos un nuevo arbol, una temporada
 
                             serie.jsonTemporada = new JSONObject();
-                            serie.jsonSerie.put(matcherTemporadas.group(1), serie.jsonTemporada);
+                            serie.jsonSerie.put("Temporada " + matcherTemporadas.group(1), serie.jsonTemporada);
 
                             // Rellenamos campos
 
-                            serie.jsonTemporada.put("Temporada", matcherTemporadas.group(1));
                             serie.jsonTemporada.put("Año", matcherTemporadas.group(2));
                             serie.jsonTemporada.put("Definicion", matcherTemporadas.group(3));
                             serie.jsonTemporada.put("Audio", matcherTemporadas.group(4));
@@ -137,7 +138,7 @@ public class ListaSeries {
 
                                             // Si un capitulo no esta en su temporada
 
-                                            //textArea.append("[warn] Directorio incorrecto (" + serie.capituloFile.getAbsolutePath() + ")\n");
+                                            log.append("[warn] Directorio incorrecto (" + serie.capituloFile.getAbsolutePath() + ")\n");
                                         }
 
                                         serie.jsonCapitulo.put("Numero", matcherTemporadas.group(2));
@@ -146,27 +147,27 @@ public class ListaSeries {
 
                                         // Un capitulo no cumple el patron
 
-                                        System.out.print("NO MATCH - (" + serie.temporadaDir + File.separator + serie.nombreCapitulo + ")\n");
+                                        log.append("NO MATCH - (" + serie.temporadaDir + File.separator + serie.nombreCapitulo + ")\n");
                                     }
                                 }
                                 else if (serie.listaCapitulos[k].isDirectory()){
 
                                     // Un directorio dentro de una temporada
 
-                                    //textArea.append("[warn] ¿extra? (" + serie.listaCapitulos[k].getPath() + ")\n");
+                                    log.append("[warn] ¿extra? (" + serie.listaCapitulos[k].getPath() + ")\n");
                                 }
                             }
                         } else {
 
                             // Una temporada no cumple el patron
 
-                            System.out.print("SEASON NO MATCH - (" + serie.serieDir + File.separator + serie.nombreTemporada + ")\n");
+                            log.append("SEASON NO MATCH - (" + serie.serieDir + File.separator + serie.nombreTemporada + ")\n");
                         }
                     } else if (serie.listaTemporadas[j].isFile()){
 
                         // Un archivo dentro de una serie
 
-                        //textArea.append("[warn] Sin temporada (" + serie.listaTemporadas[j].getPath() + ")\n");
+                        log.append("[warn] Sin temporada (" + serie.listaTemporadas[j].getPath() + ")\n");
                     }
                 }
             }
@@ -174,26 +175,12 @@ public class ListaSeries {
 
                 // Un archivo donde las series
 
-                //textArea.append("[warn] Sin serie (" + listOfFiles[i].getAbsolutePath() + ")\n");
+                log.append("[warn] Sin serie (" + listOfFiles[i].getAbsolutePath() + ")\n");
             }
         }
 
         // Devolvemos el json al programa principal
 
         return jsonSeries;
-    }
-
-    // Clase principal para debugear mientras se hace la GUI
-
-    public static void main(String[] args) throws Exception {
-        // Json
-
-        JSONObject jsonSeries = new JSONObject();
-
-        ListaSeries listaSeries = new ListaSeries();
-
-        jsonSeries = listaSeries.creaIndice("/Volumes/AlmacenAlfa/Series", jsonSeries);
-
-        System.out.println("\n\n" + jsonSeries.toString());
     }
 }

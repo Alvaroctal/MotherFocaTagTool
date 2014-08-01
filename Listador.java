@@ -1,58 +1,37 @@
 package MotherFocaTagTool;
 
-import MotherFocaTagTool.org.json.JSONArray;
-import MotherFocaTagTool.org.json.JSONObject;
+import MotherFocaTagTool.GUI.PeliculasGUI;
+import MotherFocaTagTool.GUI.SeriesGUI;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Arrays;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * Created by Alvaro on 28/07/14.
  * Listador
  */
 
-class Listador extends JFrame implements ActionListener{
+class Listador extends JFrame {
 
     // Interfaz
 
+    private JPanel topPanel;
+
     private JPanel panelLog;
-    private JPanel panelLista;
+    private JTabbedPane tabbedPane;
 
-    JTextArea textArea;
+    private JPanel panelPeliculas;
+    private JPanel panelSeries;
+
+    JTextArea log;
     JScrollPane messageArea;
-
-    private JButton indexar, añadir, quitar;
-
-    DefaultListModel listaDirectorios = new DefaultListModel();
-
-    JList lista;
-
-    // Traemos la clase ListaPeliculas
-
-    ListaPeliculas listaPeliculas = new ListaPeliculas();
-
-    // Json
-
-    JSONObject jsonPeliculas = new JSONObject();
 
     // Config
 
-    JSONObject jsonConfig;
-    JSONArray jsonStoredDirs;
-
     String home = System.getProperty("user.home");
-    String configFileDir = home + File.separator + ".configMFTT.json";
-    File configFile = new File(configFileDir);
-
-    //------------------------------------------------------------------------------
-    //  Interefaz grafica
-    //------------------------------------------------------------------------------
+    public String configFileDir = home + File.separator + ".configMFTT.json";
 
     public Listador() throws IOException {
 
@@ -62,239 +41,44 @@ class Listador extends JFrame implements ActionListener{
 
         setTitle("Crear listado");
         setSize(800, 500);
-        Container contenedor = getContentPane();
+        topPanel = new JPanel();
+        topPanel.setLayout(new BorderLayout());
+        getContentPane().add(topPanel);
+
 
         //------------------------------------------------------------------------------
-        //  Crear los paneles de la ventana
+        //  Crear Paneles
         //------------------------------------------------------------------------------
 
         panelLog = new JPanel();
-        panelLista = new JPanel();
+        tabbedPane = new JTabbedPane();
+
+        panelPeliculas = new JPanel();
+        panelSeries = new JPanel();
+        topPanel.add(panelLog, BorderLayout.WEST);
+        topPanel.add(tabbedPane);
 
         //------------------------------------------------------------------------------
-        //  Añadir los paneles al contenedor
+        //  Log
         //------------------------------------------------------------------------------
 
-        contenedor.add(panelLog, "West");
-        contenedor.add(panelLista);
-
-        //------------------------------------------------------------------------------
-        //  Panel del Log
-        //------------------------------------------------------------------------------
-
-        textArea = new JTextArea(29, 40);
-        textArea.setEditable(false);
-        messageArea = new JScrollPane(textArea,
+        log = new JTextArea(29, 40);
+        log.setEditable(false);
+        messageArea = new JScrollPane(log,
                 JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         panelLog.add(messageArea);
 
         //------------------------------------------------------------------------------
-        //  Panel de Acciones
+        //  Crear las pestañas
         //------------------------------------------------------------------------------
 
-        // Lista
+        crearPanelSeries();
+        crearPanelPeliculas();
 
-        lista = new JList(listaDirectorios);
-        JScrollPane scrollpane = new JScrollPane(lista);
+        tabbedPane.addTab("Peliculas", panelPeliculas);
+        tabbedPane.addTab("Series", panelSeries);
 
-        lista.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-        panelLista.add(scrollpane, BorderLayout.EAST);
-
-        // Añadir
-
-        añadir = new JButton("Añadir");
-        añadir.addActionListener(this);
-        panelLista.add(añadir, BorderLayout.SOUTH);
-
-        // Quitar
-
-        quitar = new JButton("Quitar");
-        quitar.addActionListener(this);
-        panelLista.add(quitar, BorderLayout.SOUTH);
-
-        // Indice
-
-        indexar = new JButton("Indexar");
-        indexar.addActionListener(this);
-        panelLista.add(indexar, BorderLayout.SOUTH);
-
-
-        //------------------------------------------------------------------------------
-        //  Comprobacion de configuracion previa
-        //------------------------------------------------------------------------------
-
-        if(configFile.exists() && !configFile.isDirectory()) {
-
-            // Existe
-
-            jsonConfig = new JSONObject(new String(Files.readAllBytes(Paths.get(configFileDir))));
-
-            if (jsonConfig.has("Directorios")){
-
-                // Obtenemos el JsonArray del JsonObject
-
-                jsonStoredDirs = jsonConfig.getJSONArray("Directorios");
-
-                for (int i = 0; i < jsonStoredDirs.length(); i++){
-
-                    // Añadimos a la lista uno a uno los elementos del array de directorios
-
-                    listaDirectorios.addElement(jsonStoredDirs.getString(i));
-                }
-
-                lista.setModel( listaDirectorios );
-                textArea.append("[done] Se ha cargado la configuracion\n");
-            }
-            else{
-                textArea.append("[error] Fichero de configuracion existe, pero no contiene directorios\n");
-            }
-        }
-        else{
-
-            // No existe
-
-            textArea.append("[info] No existe fichero de configuracion");
-
-            jsonConfig = new JSONObject();
-            jsonStoredDirs = new JSONArray();
-
-        }
-
-        jsonConfig.put("Directorios", jsonStoredDirs);
-    }
-
-    //------------------------------------------------------------------------------
-    //  Escuchador
-    //------------------------------------------------------------------------------
-
-    public void actionPerformed(ActionEvent evento) {
-
-        //--------------------------------------------------------------------------------
-        //  Escuhador de indexar
-        //--------------------------------------------------------------------------------
-
-        if ( evento.getSource() == indexar ) {
-
-            // Se ha pulsado el boton de indexar
-            if (listaDirectorios.size() == 0) {
-                textArea.append("No existen directorios a indexar\n");
-            }
-            else{
-
-                for (int i = 0; i < listaDirectorios.size(); i++) {
-
-                    // Obtenemos el i directorio de la lista
-
-                    String directorio = (String) listaDirectorios.get(i) + File.separator;
-                    textArea.append("Indexando (" + ((i + 1)) + File.separator + listaDirectorios.size() + "): " + directorio);
-                    try {
-
-                        // Para cada directorio de la lista obtenemos la lista de peliclas en foma de json
-
-                        jsonPeliculas = listaPeliculas.creaIndice(textArea, directorio, jsonPeliculas);
-
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
-                    textArea.append(" (Done)\n");
-                }
-
-                // Escribimos el json en el fichero json de peliclas
-
-                PrintWriter writer = null;
-                try {
-                    writer = new PrintWriter( System.getProperty("user.home") + File.separator + "peliculas.json", "UTF-8");
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-                writer.println(jsonPeliculas.toString());
-                writer.close();
-            }
-        }
-
-        //------------------------------------------------------------------------------
-        //  Escuchador de Añadir
-        //------------------------------------------------------------------------------
-
-        else if ( evento.getSource() == añadir ) {
-
-            // Configuramos el selector de directorios
-
-            JFileChooser chooser = new JFileChooser();
-            chooser.setMultiSelectionEnabled(true);
-            chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-
-            int option = chooser.showOpenDialog(Listador.this);
-
-            if (option == JFileChooser.APPROVE_OPTION) {
-
-                // Si pulsamos seleccionar
-
-                File[] folderList = chooser.getSelectedFiles();
-
-                for (int i = 0; i < folderList.length; i++) {
-
-                    listaDirectorios.addElement(folderList[i].getAbsolutePath());
-                    textArea.append("Agregado directorio: " + folderList[i].getAbsolutePath() + "/\n");
-                }
-
-                lista.setModel( listaDirectorios );
-
-                // Escribimos el fichero de configuracion
-
-                jsonStoredDirs = new JSONArray(Arrays.asList(listaDirectorios.toArray()));
-
-                jsonConfig.put("Directorios", jsonStoredDirs);
-
-                PrintWriter writer = null;
-                try {
-                    writer = new PrintWriter(configFileDir, "UTF-8");
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-                writer.println(jsonConfig.toString());
-                writer.close();
-            }
-        }
-
-        //------------------------------------------------------------------------------
-        //  Escuchador de Quitar
-        //------------------------------------------------------------------------------
-
-        else if ( evento.getSource() == quitar ) {
-
-            // Se ha pulsado el boton de quitar
-
-            listaDirectorios.removeElementAt(lista.getSelectedIndex());
-            lista.setModel( listaDirectorios );
-
-            // Escribir el json de configuracion
-
-            jsonStoredDirs = new JSONArray(Arrays.asList(listaDirectorios.toArray()));
-
-            jsonConfig.put("Directorios", jsonStoredDirs);
-
-            PrintWriter writer = null;
-            try {
-                writer = new PrintWriter(configFileDir, "UTF-8");
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-            writer.println(jsonConfig.toString());
-            writer.close();
-
-            textArea.append(" ** Eliminado **\n");
-        }
     }
 
     //------------------------------------------------------------------------------
@@ -305,5 +89,27 @@ class Listador extends JFrame implements ActionListener{
         Listador ventana = new Listador() ;
         ventana.setVisible(true) ;
         ventana.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    }
+
+    //------------------------------------------------------------------------------
+    //  Pesataña de Peliculas
+    //------------------------------------------------------------------------------
+
+    public void crearPanelPeliculas() throws IOException {
+
+        panelPeliculas = new JPanel();
+
+        PeliculasGUI peliculasGUI = new PeliculasGUI(log, panelPeliculas, configFileDir);
+    }
+
+    //------------------------------------------------------------------------------
+    //  Pestaña de Series
+    //------------------------------------------------------------------------------
+
+    public void crearPanelSeries() throws IOException {
+
+        panelSeries = new JPanel();
+
+        SeriesGUI seriesGUI = new SeriesGUI(log, panelSeries, configFileDir);
     }
 }
