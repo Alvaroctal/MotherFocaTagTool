@@ -27,7 +27,7 @@ public class ListaSeries {
 
         // Variables temporales de debug
 
-        boolean showOnlyFails = false, falloDetectado = false;
+        boolean showOnlyFails = false, falloDetectado = false, showTitles = false;
 
         String nombreArchivo;
 
@@ -68,6 +68,10 @@ public class ListaSeries {
                 // Creamos una nueva serie
 
                 Serie serie = new Serie(listOfFiles[i].getName());
+
+                if (! showOnlyFails){
+                    log.append("+-+ " + serie.nombreSerie + "\n");
+                }
 
                 // Creamos un nuevo arbol, una serie
 
@@ -111,6 +115,14 @@ public class ListaSeries {
                             serie.temporadaFile = new File(serie.temporadaDir);
                             serie.listaCapitulos = serie.temporadaFile.listFiles();
 
+                            if (! showOnlyFails){
+                                log.append(" |  + Temporada " + matcherTemporadas.group(1));
+                                if (! showTitles){
+                                    log.append(" - " + serie.listaCapitulos.length + " capitulos");
+                                }
+                                log.append("\n");
+                            }
+
                             for (int k = 0; k < serie.listaCapitulos.length; k++) {
 
                                 if (serie.listaCapitulos[k].isFile()){
@@ -128,6 +140,10 @@ public class ListaSeries {
 
                                         serie.jsonCapitulo = new JSONObject();
                                         serie.jsonTemporada.put(matcherCapitulos.group(2), serie.jsonCapitulo);
+
+                                        if (! showOnlyFails && showTitles){
+                                            log.append(" |   |- Capitulo " + matcherCapitulos.group(2) + ": " + matcherCapitulos.group(3) + "\n");
+                                        }
 
                                         // Rellenamos campos
 
@@ -157,6 +173,7 @@ public class ListaSeries {
                                     log.append("[warn] ¿extra? (" + serie.listaCapitulos[k].getPath() + ")\n");
                                 }
                             }
+                            serie.jsonTemporada.put("Capitulos", serie.listaCapitulos.length);
                         } else {
 
                             // Una temporada no cumple el patron
@@ -170,6 +187,7 @@ public class ListaSeries {
                         log.append("[warn] Sin temporada (" + serie.listaTemporadas[j].getPath() + ")\n");
                     }
                 }
+                serie.jsonSerie.put("Temporadas", serie.listaTemporadas.length);
             }
             else if (listOfFiles[i].isFile()) {
 

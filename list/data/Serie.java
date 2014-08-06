@@ -51,7 +51,7 @@ public class Serie {
 
         this.nombreSerie = nombreSerie;
 
-        patronTemporada = nombreSerie + " - Temporada ([0-9]) \\(([0-9]*)\\) - ([0-9]*) \\[(Dual|Cast|Vose)\\]";
-        patronCapitulo = nombreSerie + " ([0-9]*)x([0-9]*) - ([0-9a-zA-Zá-ú-ñ\\- ]*)";
+        patronTemporada = nombreSerie + " - Temporada ([0-9]*) \\(([0-9]*)\\) - ([0-9]*|SD) \\[(Dual|Cast|Vose)\\]";
+        patronCapitulo = nombreSerie + " ([0-9]*)x([0-9]*) - ([^~.]*)";
     }
 }

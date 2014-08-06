@@ -82,7 +82,6 @@ public class ListaPeliculas {
                 // Nos deplazamos al directorio
 
                 pelicula.sagaDir = path + File.separator + pelicula.nombreSaga;
-
                 pelicula.sagaFile = new File(pelicula.sagaDir);
                 pelicula.listaSaga = pelicula.sagaFile.listFiles();
 
@@ -103,6 +102,7 @@ public class ListaPeliculas {
                         // Creamos un nuevo array, una pelicula
 
                         pelicula.jsonPelicula = new JSONObject();
+                        pelicula.jsonPelicula.put("titulo", m.group(1));
                         pelicula.jsonPelicula.put("año", m.group(2));
                         pelicula.jsonPelicula.put("definicion", m.group(3));
                         pelicula.jsonPelicula.put("audio", m.group(4));
@@ -110,6 +110,7 @@ public class ListaPeliculas {
                         // Linkamos la pelicula a la saga
 
                         pelicula.jsonSaga.put(m.group(1), pelicula.jsonPelicula);
+                        pelicula.jsonSaga.put("nombre", pelicula.nombreSaga);
 
                         if (! showOnlyFails) {
 
@@ -154,9 +155,10 @@ public class ListaPeliculas {
                     // Creamos un nuevo array, una pelicula
 
                     pelicula.jsonPelicula = new JSONObject();
-                    pelicula.jsonPelicula.put("Año", m.group(2));
-                    pelicula.jsonPelicula.put("Definicion", m.group(3));
-                    pelicula.jsonPelicula.put("Audio", m.group(4));
+                    pelicula.jsonPelicula.put("titulo", m.group(1));
+                    pelicula.jsonPelicula.put("año", m.group(2));
+                    pelicula.jsonPelicula.put("definicion", m.group(3));
+                    pelicula.jsonPelicula.put("audio", m.group(4));
 
                     peliculas.put(m.group(1), pelicula.jsonPelicula);
                     if (! showOnlyFails) {
