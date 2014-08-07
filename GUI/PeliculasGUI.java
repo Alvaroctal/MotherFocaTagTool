@@ -21,9 +21,8 @@ public class PeliculasGUI extends Component implements ActionListener {
 
     // Botones
 
-    private JButton añadir;
-    private JButton quitar;
-    private JButton indexar;
+    private JButton añadir, quitar, configurar, tagear, indexar;
+    int buttonSize = 64;
 
     // Lista
 
@@ -81,11 +80,50 @@ public class PeliculasGUI extends Component implements ActionListener {
         quitar.addActionListener(this);
         panel.add(quitar, BorderLayout.SOUTH);
 
+        // Acciones
+
+        JPanel toolbar = new JPanel();
+        toolbar.setLayout(new BoxLayout(toolbar, BoxLayout.X_AXIS));
+
+        // Configurar
+
+        configurar = new JButton("  Ajustes  ", new ImageIcon(getClass().getResource("resources/icons/settings-32.png")));
+        configurar.setPreferredSize(new Dimension(buttonSize, buttonSize));
+        configurar.setMargin(new Insets(0,0,0,0));
+        configurar.setVerticalTextPosition(SwingConstants.BOTTOM);
+        configurar.setHorizontalTextPosition(SwingConstants.CENTER);
+        configurar.addActionListener(this);
+        toolbar.add(configurar, BorderLayout.SOUTH);
+
+        // Spacer
+
+        toolbar.add(new JLabel("  "));
+
+        // Tagear
+
+        tagear = new JButton("  Tagear  ", new ImageIcon(getClass().getResource("resources/icons/tag-32.png")));
+        tagear.setPreferredSize(new Dimension(buttonSize + 20, buttonSize));
+        tagear.setMargin(new Insets(0,0,0,0));
+        tagear.setVerticalTextPosition(SwingConstants.BOTTOM);
+        tagear.setHorizontalTextPosition(SwingConstants.CENTER);
+        tagear.addActionListener(this);
+        toolbar.add(tagear, BorderLayout.SOUTH);
+
+        // Spacer
+
+        toolbar.add(new JLabel("  "));
+
         // Indexar
 
-        indexar = new JButton("Indexar");
+        indexar = new JButton("  Indexar  ", new ImageIcon(getClass().getResource("resources/icons/list-32.png")));
+        indexar.setPreferredSize(new Dimension(buttonSize, buttonSize));
+        indexar.setMargin(new Insets(0, 0, 0, 0));
+        indexar.setVerticalTextPosition(SwingConstants.BOTTOM);
+        indexar.setHorizontalTextPosition(SwingConstants.CENTER);
         indexar.addActionListener(this);
-        panel.add(indexar, BorderLayout.SOUTH);
+        toolbar.add(indexar, BorderLayout.SOUTH);
+
+        panel.add(toolbar, "South");
 
         //------------------------------------------------------------------------------
         //  Comprobacion de configuracion previa
@@ -137,7 +175,7 @@ public class PeliculasGUI extends Component implements ActionListener {
 
             // Fichero de configuracion no existe
 
-            log.append("[info] (Peliculas) No existe fichero de configuracion");
+            log.append("[info] (Peliculas) No existe fichero de configuracion\n");
 
             jsonConfig = new JSONObject();
             jsonPeliculasConfig = new JSONObject();
@@ -264,28 +302,49 @@ public class PeliculasGUI extends Component implements ActionListener {
 
             // Se ha pulsado el boton de quitar
 
-            listaDirectorios.removeElementAt(lista.getSelectedIndex());
-            lista.setModel( listaDirectorios );
-
-            // Escribir el json de configuracion
-
-            jsonStoredDirs = new JSONArray(Arrays.asList(listaDirectorios.toArray()));
-
-            jsonPeliculasConfig.put("Directorios", jsonStoredDirs);
-            jsonConfig.put("Peliculas", jsonPeliculasConfig);
-
-            PrintWriter writer = null;
             try {
-                writer = new PrintWriter(configFileDir, "UTF-8");
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-            writer.println(jsonConfig.toString());
-            writer.close();
+                listaDirectorios.removeElementAt(lista.getSelectedIndex());
 
-            log.append(" ** Eliminado **\n");
+
+                lista.setModel(listaDirectorios);
+
+                // Escribir el json de configuracion
+
+                jsonStoredDirs = new JSONArray(Arrays.asList(listaDirectorios.toArray()));
+
+                jsonPeliculasConfig.put("Directorios", jsonStoredDirs);
+                jsonConfig.put("Peliculas", jsonPeliculasConfig);
+
+                PrintWriter writer = null;
+                try {
+                    writer = new PrintWriter(configFileDir, "UTF-8");
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+                writer.println(jsonConfig.toString());
+                writer.close();
+
+                log.append(" ** Eliminado **\n");
+            }
+            catch (ArrayIndexOutOfBoundsException e){
+                log.append("No has seleccionado ningun directorio\n");
+            }
+        }
+
+        //------------------------------------------------------------------------------
+        //  Escuchador de Configurar
+        //------------------------------------------------------------------------------
+
+        else if ( evento.getSource() == configurar ) {
+            log.append("WIP - Octal\n");
+        }
+        else if ( evento.getSource() == tagear ) {
+            log.append("WIP - Bio\n");
+        }
+        else{
+            log.append("[warn] No Existe accion asociada al boton\n");
         }
     }
 }
