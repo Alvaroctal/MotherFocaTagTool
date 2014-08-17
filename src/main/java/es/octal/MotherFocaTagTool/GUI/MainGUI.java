@@ -1,7 +1,4 @@
-package main.java.es.octal.MotherFocaTagTool;
-
-import main.java.es.octal.MotherFocaTagTool.GUI.PeliculasGUI;
-import main.java.es.octal.MotherFocaTagTool.GUI.SeriesGUI;
+package main.java.es.octal.MotherFocaTagTool.GUI;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,11 +6,11 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Created by Alvaro on 28/07/14.
- * Listador
+ * Created by Alvaro on 17/08/14.
+ * MotherFocaTagTool
  */
 
-class Listador extends JFrame {
+public class MainGUI extends JFrame {
 
     // Interfaz
 
@@ -34,7 +31,7 @@ class Listador extends JFrame {
 
     // Constructor
 
-    public Listador() throws IOException {
+    public MainGUI() throws IOException {
 
         //------------------------------------------------------------------------------
         //  Crear la ventana
@@ -74,46 +71,12 @@ class Listador extends JFrame {
         //  Crear las pestañas
         //------------------------------------------------------------------------------
 
-        crearPanelPeliculas();
-        crearPanelSeries();
+
+        PeliculasGUI peliculasGUI = new PeliculasGUI(log, panelPeliculas, configFileDir);
+        SeriesGUI seriesGUI = new SeriesGUI(log, panelSeries, configFileDir);
 
         tabbedPane.addTab("Peliculas", panelPeliculas);
         tabbedPane.addTab("Series", panelSeries);
 
-    }
-
-    //------------------------------------------------------------------------------
-    //  Main
-    //------------------------------------------------------------------------------
-
-    public static void main(String[] args) throws Exception {
-        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        Listador ventana = new Listador();
-        ventana.setVisible(true);
-        ventana.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        ventana.setLocation((Toolkit.getDefaultToolkit().getScreenSize().width  - ventana.getSize().width) / 2 - 100,
-                (Toolkit.getDefaultToolkit().getScreenSize().height - ventana.getSize().height) / 2);
-    }
-
-    //------------------------------------------------------------------------------
-    //  Pesataña de Peliculas
-    //------------------------------------------------------------------------------
-
-    public void crearPanelPeliculas() throws IOException {
-
-        panelPeliculas = new JPanel();
-
-        PeliculasGUI peliculasGUI = new PeliculasGUI(log, panelPeliculas, configFileDir);
-    }
-
-    //------------------------------------------------------------------------------
-    //  Pestaña de Series
-    //------------------------------------------------------------------------------
-
-    public void crearPanelSeries() throws IOException {
-
-        panelSeries = new JPanel();
-
-        SeriesGUI seriesGUI = new SeriesGUI(log, panelSeries, configFileDir);
     }
 }

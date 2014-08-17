@@ -6,7 +6,7 @@ import java.io.File;
 
 /**
  * Created by Alvaro on 01/08/14.
- * java
+ * MotherFocaTagTool
  */
 public class Pelicula {
 

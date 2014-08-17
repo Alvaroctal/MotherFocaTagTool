@@ -6,7 +6,7 @@ import java.io.File;
 
 /**
  * Created by Alvaro on 31/07/14.
- * java
+ * MotherFocaTagTool
  */
 
 public class Serie {

@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 
 /**
  * Created by Alvaro on 31/07/14.
- * java
+ * MotherFocaTagTool
  */
 
 public class ListaSeries {

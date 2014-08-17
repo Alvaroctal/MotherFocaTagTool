@@ -14,6 +14,11 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 
+/**
+ * Created by Alvaro on 17/08/14.
+ * MotherFocaTagTool
+ */
+
 public class PeliculasGUI extends Component implements ActionListener {
 
     // Paneles
@@ -86,11 +91,12 @@ public class PeliculasGUI extends Component implements ActionListener {
         panelBotones = new JPanel();
 
         panel.add(panelLista);
-        panel.add(panelListaBotones);
         panel.add(panelCheckBoxes);
         panel.add(panelBotones);
 
         // Alineaciones
+
+        panelListaBotones.setLayout(new BoxLayout(panelListaBotones, BoxLayout.X_AXIS));
 
         panelCheckBoxes.setLayout(new BoxLayout(panelCheckBoxes, BoxLayout.Y_AXIS));
         panelCheckBoxes.setAlignmentX(JCheckBox.RIGHT_ALIGNMENT);
@@ -104,6 +110,7 @@ public class PeliculasGUI extends Component implements ActionListener {
         lista.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         scrollLista.setPreferredSize(new Dimension(265, 200));
         panelLista.add(scrollLista);
+        panelLista.add(panelListaBotones);
 
         //------------------------------------------------------------------------------
         //  ListaBotones
@@ -120,6 +127,17 @@ public class PeliculasGUI extends Component implements ActionListener {
         quitar = new JButton("Quitar");
         quitar.addActionListener(this);
         panelListaBotones.add(quitar);
+
+        if ( System.getProperty( "os.name" ).toLowerCase( ).startsWith( "mac os x" ) ){
+
+            // Es mac
+
+            añadir.putClientProperty( "JButton.buttonType", "segmented" );
+            añadir.putClientProperty( "JButton.segmentPosition", "first" );
+
+            quitar.putClientProperty( "JButton.buttonType", "segmented" );
+            quitar.putClientProperty("JButton.segmentPosition", "last");
+        }
 
         //------------------------------------------------------------------------------
         //  CheckBoxes

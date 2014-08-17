@@ -61,7 +61,6 @@ A continuación se explica el modo en el que se reconoce la sintaxis.
 
 ## FTP
 
-* Descripcion
 	Tambien tiene una función para, tras crear el indice, subir el fichero json a un drectorio en un servidor ftp. Para ello echaremos un ojo al fichero de configuracion del programa ($home/.configMFTT.json).
 
 * Sintaxis
@@ -71,7 +70,7 @@ A continuación se explica el modo en el que se reconoce la sintaxis.
 			"server": "ip", 
 			"user": "ftpUser", 
 			"pass": "ftpPass"
-			},
+		},
 		"peliculas"{
 			"ftp": "pathToDir/peliculas.json",
 			...
