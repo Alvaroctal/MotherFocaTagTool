@@ -23,11 +23,11 @@ public class ListaPeliculas {
 
     }
 
-    public JSONObject creaIndice (JTextArea log, String path, JSONObject jsonPeliculas) throws FileNotFoundException, UnsupportedEncodingException {
+    public JSONObject creaIndice (JTextArea log, String path, JSONObject jsonPeliculas, Boolean showOnlyFails) throws FileNotFoundException, UnsupportedEncodingException {
 
         // Variables temporales de debug
 
-        boolean showOnlyFails = false, falloDetectado = false;
+        boolean noFail = true;
 
         File folder = new File(path);
         File[] listOfFiles = folder.listFiles();
@@ -55,49 +55,102 @@ public class ListaPeliculas {
 
             // Si el checkbox de mostrar log completo esta marcado
 
-            log.append("\n+ " + path + "\n | \n");
+            log.append("+ " + path + "\n | \n");
             log.setCaretPosition(log.getDocument().getLength());
         }
+        try {
 
-        for (int i = 0; i < listOfFiles.length; i++) {
+            for (int i = 0; i < listOfFiles.length; i++) {
 
-            Pelicula pelicula = new Pelicula();
+                Pelicula pelicula = new Pelicula();
 
-            if (listOfFiles[i].isDirectory()){
+                if (listOfFiles[i].isDirectory()) {
 
-                // Parte para tratar directorios
+                    // Parte para tratar directorios
 
-                pelicula.nombreSaga = listOfFiles[i].getName();
+                    pelicula.nombreSaga = listOfFiles[i].getName();
 
-                if (! showOnlyFails) {
+                    if (!showOnlyFails) {
 
-                    log.append("+-+ " + pelicula.nombreSaga + "\n");
-                    log.setCaretPosition(log.getDocument().getLength());
-                }
+                        log.append("+-+ " + pelicula.nombreSaga + "\n");
+                        log.setCaretPosition(log.getDocument().getLength());
+                    }
 
-                // Creamos la saga
+                    // Creamos la saga
 
-                pelicula.jsonSaga = new JSONObject();
+                    pelicula.jsonSaga = new JSONObject();
 
-                // Nos deplazamos al directorio
+                    // Nos deplazamos al directorio
 
-                pelicula.sagaDir = path + File.separator + pelicula.nombreSaga;
-                pelicula.sagaFile = new File(pelicula.sagaDir);
-                pelicula.listaSaga = pelicula.sagaFile.listFiles();
+                    pelicula.sagaDir = path + File.separator + pelicula.nombreSaga;
+                    pelicula.sagaFile = new File(pelicula.sagaDir);
+                    pelicula.listaSaga = pelicula.sagaFile.listFiles();
 
-                // Listar archivos del directorio
+                    // Listar archivos del directorio
 
-                for (int j = 0; j < pelicula.listaSaga.length; j++) {
+                    for (int j = 0; j < pelicula.listaSaga.length; j++) {
+
+                        // Parte para tratar ficheros
+
+                        pelicula.nombrePelicula = pelicula.listaSaga[j].getName();
+
+                        // Crear el objeto del patron
+
+                        Pattern pattern = Pattern.compile(pelicula.patron);
+                        Matcher m = pattern.matcher(pelicula.nombrePelicula);
+                        if (m.find()) {
+
+                            // Creamos un nuevo array, una pelicula
+
+                            pelicula.jsonPelicula = new JSONObject();
+                            pelicula.jsonPelicula.put("titulo", m.group(1));
+                            pelicula.jsonPelicula.put("año", m.group(2));
+                            pelicula.jsonPelicula.put("definicion", m.group(3));
+                            pelicula.jsonPelicula.put("audio", m.group(4));
+
+                            // Linkamos la pelicula a la saga
+
+                            pelicula.jsonSaga.put(m.group(1), pelicula.jsonPelicula);
+                            pelicula.jsonSaga.put("nombre", pelicula.nombreSaga);
+
+                            if (!showOnlyFails) {
+
+                                // Si el checkbox de mostrar log completo esta marcado
+
+                                log.append(" |   | [done] " + m.group(1) + "\n");
+                                log.setCaretPosition(log.getDocument().getLength());
+                            }
+
+                        } else {
+
+                            // Si no cuadra
+
+                            if (noFail) {
+                                log.append("\n");
+                                noFail = false;
+                            }
+
+                            log.append("NO MATCH - (" + pelicula.listaSaga[j].getAbsolutePath() + ")\n");// - (" + patron + ")\n");
+                            log.setCaretPosition(log.getDocument().getLength());
+                        }
+                    }
+
+                    // Linkamos la saga a la lista de peliculas
+
+                    peliculas.put(pelicula.nombreSaga, pelicula.jsonSaga);
+
+
+                } else if (listOfFiles[i].isFile()) {
 
                     // Parte para tratar ficheros
 
-                    pelicula.nombrePelicula = pelicula.listaSaga[j].getName();
+                    pelicula.nombrePelicula = listOfFiles[i].getName();
 
                     // Crear el objeto del patron
 
                     Pattern pattern = Pattern.compile(pelicula.patron);
                     Matcher m = pattern.matcher(pelicula.nombrePelicula);
-                    if (m.find( )) {
+                    if (m.find()) {
 
                         // Creamos un nuevo array, una pelicula
 
@@ -107,76 +160,29 @@ public class ListaPeliculas {
                         pelicula.jsonPelicula.put("definicion", m.group(3));
                         pelicula.jsonPelicula.put("audio", m.group(4));
 
-                        // Linkamos la pelicula a la saga
-
-                        pelicula.jsonSaga.put(m.group(1), pelicula.jsonPelicula);
-                        pelicula.jsonSaga.put("nombre", pelicula.nombreSaga);
-
-                        if (! showOnlyFails) {
-
-                            // Si el checkbox de mostrar log completo esta marcado
-
-                            log.append(" |   | [done] " + m.group(1) + "\n");
+                        peliculas.put(m.group(1), pelicula.jsonPelicula);
+                        if (!showOnlyFails) {
+                            log.append(" | [done] " + m.group(1) + "\n");
                             log.setCaretPosition(log.getDocument().getLength());
                         }
-
                     } else {
 
-                        // Si no cuadra
-
-                        if (! falloDetectado) {
+                        if (noFail) {
                             log.append("\n");
-                            falloDetectado = true;
+                            noFail = false;
                         }
 
-                        log.append("NO MATCH - (" + pelicula.listaSaga[j].getAbsolutePath() + ")\n");// - (" + patron + ")\n");
+                        log.append("NO MATCH - (" + listOfFiles[i].getAbsolutePath() + ")\n");
                         log.setCaretPosition(log.getDocument().getLength());
                     }
-                }
-
-                // Linkamos la saga a la lista de peliculas
-
-                peliculas.put(pelicula.nombreSaga, pelicula.jsonSaga);
-
-
-            }
-            else if (listOfFiles[i].isFile()) {
-
-                // Parte para tratar ficheros
-
-                pelicula.nombrePelicula = listOfFiles[i].getName();
-
-                // Crear el objeto del patron
-
-                Pattern pattern = Pattern.compile(pelicula.patron);
-                Matcher m = pattern.matcher(pelicula.nombrePelicula);
-                if (m.find( )) {
-
-                    // Creamos un nuevo array, una pelicula
-
-                    pelicula.jsonPelicula = new JSONObject();
-                    pelicula.jsonPelicula.put("titulo", m.group(1));
-                    pelicula.jsonPelicula.put("año", m.group(2));
-                    pelicula.jsonPelicula.put("definicion", m.group(3));
-                    pelicula.jsonPelicula.put("audio", m.group(4));
-
-                    peliculas.put(m.group(1), pelicula.jsonPelicula);
-                    if (! showOnlyFails) {
-                        log.append(" | [done] " + m.group(1) + "\n");
-                        log.setCaretPosition(log.getDocument().getLength());
-                    }
-                } else {
-
-                    if (! falloDetectado) {
-                        log.append("\n");
-                        falloDetectado = true;
-                    }
-
-                    log.append("NO MATCH - (" + listOfFiles[i].getAbsolutePath() + ")\n");
-                    log.setCaretPosition(log.getDocument().getLength());
                 }
             }
         }
+        catch (java.lang.NullPointerException e){
+            log.append("[error] No se pudo acceder al directorio\n");
+            noFail = false;
+        }
+        jsonPeliculas.put("noFail", noFail);
 
         // Devolvemos el json al programa principal
 

@@ -1,6 +1,7 @@
 package MotherFocaTagTool.GUI;
 
 import MotherFocaTagTool.list.ListaPeliculas;
+import MotherFocaTagTool.org.apache.commons.net.net.ftp.FTPClient;
 import MotherFocaTagTool.org.json.JSONArray;
 import MotherFocaTagTool.org.json.JSONObject;
 
@@ -15,20 +16,32 @@ import java.util.Arrays;
 
 public class PeliculasGUI extends Component implements ActionListener {
 
+    // Paneles
+
+    private JPanel panelLista;
+    private JPanel panelListaBotones;
+    private JPanel panelCheckBoxes;
+    private JPanel panelBotones;
+
     // log
 
     JTextArea log;
-
-    // Botones
-
-    private JButton añadir, quitar, configurar, tagear, indexar;
-    int buttonSize = 64;
 
     // Lista
 
     JList lista;
     JScrollPane scrollLista;
     DefaultListModel listaDirectorios = new DefaultListModel();
+
+    // Botones
+
+    private JButton añadir, quitar, configurar, tagear, indexar;
+    int buttonSize = 64;
+
+    // CheckBoxes
+
+    private JCheckBox showOnlyFails;
+    private JCheckBox ftpUpload;
 
     // Json
 
@@ -42,6 +55,7 @@ public class PeliculasGUI extends Component implements ActionListener {
 
     File configFile;
     public String configFileDir;
+    public String jsonPeliculasDir = System.getProperty("user.home") + File.separator + "peliculas.json";
 
     // Clase
 
@@ -60,27 +74,72 @@ public class PeliculasGUI extends Component implements ActionListener {
 
         this.log = log;
 
-        // Lista
+        //------------------------------------------------------------------------------
+        //  Paneles
+        //------------------------------------------------------------------------------
+
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+
+        panelLista = new JPanel();
+        panelListaBotones = new JPanel();
+        panelCheckBoxes = new JPanel();
+        panelBotones = new JPanel();
+
+        panel.add(panelLista);
+        panel.add(panelListaBotones);
+        panel.add(panelCheckBoxes);
+        panel.add(panelBotones);
+
+        // Alineaciones
+
+        panelCheckBoxes.setLayout(new BoxLayout(panelCheckBoxes, BoxLayout.Y_AXIS));
+        panelCheckBoxes.setAlignmentX(JCheckBox.RIGHT_ALIGNMENT);
+
+        //------------------------------------------------------------------------------
+        //  Lista
+        //------------------------------------------------------------------------------
 
         lista = new JList(listaDirectorios);
         scrollLista = new JScrollPane(lista);
         lista.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         scrollLista.setPreferredSize(new Dimension(265, 200));
-        panel.add(scrollLista);
+        panelLista.add(scrollLista);
+
+        //------------------------------------------------------------------------------
+        //  ListaBotones
+        //------------------------------------------------------------------------------
 
         // Añadir
 
         añadir = new JButton("Añadir");
         añadir.addActionListener(this);
-        panel.add(añadir, BorderLayout.SOUTH);
+        panelListaBotones.add(añadir);
 
         // Quitar
 
         quitar = new JButton("Quitar");
         quitar.addActionListener(this);
-        panel.add(quitar, BorderLayout.SOUTH);
+        panelListaBotones.add(quitar);
 
-        // Acciones
+        //------------------------------------------------------------------------------
+        //  CheckBoxes
+        //------------------------------------------------------------------------------
+
+        // ShowOnlyFails
+
+        showOnlyFails = new JCheckBox("Notificar solo fallos");
+        showOnlyFails.setSelected(false);
+        panelCheckBoxes.add(showOnlyFails);
+
+        // FTP
+
+        ftpUpload = new JCheckBox("Subir al FTP");
+        ftpUpload.setSelected(true);
+        panelCheckBoxes.add(ftpUpload);
+
+        //------------------------------------------------------------------------------
+        //  Botones
+        //------------------------------------------------------------------------------
 
         JPanel toolbar = new JPanel();
         toolbar.setLayout(new BoxLayout(toolbar, BoxLayout.X_AXIS));
@@ -94,9 +153,6 @@ public class PeliculasGUI extends Component implements ActionListener {
         configurar.setHorizontalTextPosition(SwingConstants.CENTER);
         configurar.addActionListener(this);
         toolbar.add(configurar, BorderLayout.SOUTH);
-
-        // Spacer
-
         toolbar.add(new JLabel("  "));
 
         // Tagear
@@ -108,9 +164,6 @@ public class PeliculasGUI extends Component implements ActionListener {
         tagear.setHorizontalTextPosition(SwingConstants.CENTER);
         tagear.addActionListener(this);
         toolbar.add(tagear, BorderLayout.SOUTH);
-
-        // Spacer
-
         toolbar.add(new JLabel("  "));
 
         // Indexar
@@ -123,7 +176,7 @@ public class PeliculasGUI extends Component implements ActionListener {
         indexar.addActionListener(this);
         toolbar.add(indexar, BorderLayout.SOUTH);
 
-        panel.add(toolbar, "South");
+        panelBotones.add(toolbar, BorderLayout.SOUTH);
 
         //------------------------------------------------------------------------------
         //  Comprobacion de configuracion previa
@@ -211,31 +264,41 @@ public class PeliculasGUI extends Component implements ActionListener {
 
                 jsonPeliculas = new JSONObject();
 
+                Boolean noFailGlobal = true;
+
                 for (int i = 0; i < listaDirectorios.size(); i++) {
 
                     // Obtenemos el i directorio de la lista
 
                     String directorio = (String) listaDirectorios.get(i);
-                    log.append("Indexando (" + ((i + 1)) + File.separator + listaDirectorios.size() + "): " + directorio);
+                    log.append("Indexando (" + ((i + 1)) + File.separator + listaDirectorios.size() + "): " + directorio + "\n");
                     try {
 
-                        // Para cada directorio de la lista obtenemos la lista de peliclas en foma de json
+                        // Para cada directorio de la lista obtenemos la lista de peliclas en forma de json
 
-                        jsonPeliculas = listaPeliculas.creaIndice(log, directorio, jsonPeliculas);
+                        jsonPeliculas = listaPeliculas.creaIndice(log, directorio, jsonPeliculas, showOnlyFails.isSelected());
 
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     } catch (UnsupportedEncodingException e) {
                         e.printStackTrace();
                     }
-                    log.append(" (Done)\n");
+                    if (! jsonPeliculas.getBoolean("noFail")) {
+                        noFailGlobal = false;
+                    }
+                }
+                if (! noFailGlobal){
+                    log.append("*************************************************************\n");
+                    log.append("[warn] Se detectaron 1 o mas errores de sintaxis\n");
                 }
 
-                // Escribimos el json en el fichero json de peliclas
+                //------------------------------------------------------------------------------
+                //  Fichero local
+                //------------------------------------------------------------------------------
 
                 PrintWriter writer = null;
                 try {
-                    writer = new PrintWriter(System.getProperty("user.home") + File.separator + "peliculas.json", "UTF-8");
+                    writer = new PrintWriter(jsonPeliculasDir, "UTF-8");
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 } catch (UnsupportedEncodingException e) {
@@ -243,6 +306,75 @@ public class PeliculasGUI extends Component implements ActionListener {
                 }
                 writer.println(jsonPeliculas.toString());
                 writer.close();
+
+                //------------------------------------------------------------------------------
+                //  FTP
+                //------------------------------------------------------------------------------
+
+                if (ftpUpload.isSelected()) {
+                    if (jsonConfig.has("ftp")) {
+                        if (jsonPeliculas.getBoolean("noFail")) {
+
+                            // El fichero de configuracion contiene configuracion sobre peliculas
+
+                            JSONObject jsonFtpConfig = jsonConfig.getJSONObject("ftp");
+
+                            FTPClient ftpClient = new FTPClient();
+
+                            String sFTP = jsonFtpConfig.getString("server");
+                            String sUser = jsonFtpConfig.getString("user");
+                            String sPassword = jsonFtpConfig.getString("pass");
+
+                            //------------------------------------------------------------------------------
+                            //  FTP conect
+                            //------------------------------------------------------------------------------
+
+                            try {
+                                ftpClient.connect(sFTP);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            try {
+                                if (ftpClient.login(sUser, sPassword)) {
+                                    log.append("[ftp] acceso concedido\n");
+                                } else {
+                                    log.append("[ftp] acceso denegado\n");
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+
+                            //------------------------------------------------------------------------------
+                            //  FTP upload
+                            //------------------------------------------------------------------------------
+
+                            try {
+                                File firstLocalFile = new File(jsonPeliculasDir);
+
+                                String firstRemoteFile = jsonPeliculasConfig.getString("ftp");
+                                InputStream inputStream = new FileInputStream(firstLocalFile);
+
+                                log.append("[ftp] Iniciando subida al servidor...\n");
+                                boolean done = ftpClient.storeFile(firstRemoteFile, inputStream);
+                                inputStream.close();
+                                if (done) {
+                                    log.append("[ftp] Subida completada\n");
+                                } else {
+                                    log.append("[ftp] Error, no se pudo subir el archivo\n");
+                                }
+                            } catch (IOException ioe) {
+                                log.append("[error] No se pudo subir el archivo al servidor\n");
+                            }
+                        } else {
+                            log.append("[ftp] Se encontraron errores, subida cancelada\n");
+                        }
+                    } else {
+                        log.append("[ftp] json data missing\n");
+                    }
+                }
+                else {
+                    // ftp deshabilitado
+                }
             }
         }
 
@@ -344,7 +476,7 @@ public class PeliculasGUI extends Component implements ActionListener {
             log.append("WIP - Bio\n");
         }
         else{
-            log.append("[warn] No Existe accion asociada al boton\n");
+            log.append("[warn] No existe accion asociada al boton\n");
         }
     }
 }

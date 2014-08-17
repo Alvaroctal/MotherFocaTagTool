@@ -30,8 +30,9 @@ class Listador extends JFrame {
 
     // Config
 
-    String home = System.getProperty("user.home");
-    public String configFileDir = home + File.separator + ".configMFTT.json";
+    public String configFileDir = System.getProperty("user.home") + File.separator + ".configMFTT.json";
+
+    // Constructor
 
     public Listador() throws IOException {
 
@@ -66,7 +67,7 @@ class Listador extends JFrame {
         log.setEditable(false);
         messageArea = new JScrollPane(log,
                 JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         panelLog.add(messageArea);
 
         //------------------------------------------------------------------------------
@@ -86,9 +87,12 @@ class Listador extends JFrame {
     //------------------------------------------------------------------------------
 
     public static void main(String[] args) throws Exception {
+        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         Listador ventana = new Listador();
         ventana.setVisible(true);
         ventana.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        ventana.setLocation((Toolkit.getDefaultToolkit().getScreenSize().width  - ventana.getSize().width) / 2 - 100,
+                (Toolkit.getDefaultToolkit().getScreenSize().height - ventana.getSize().height) / 2);
     }
 
     //------------------------------------------------------------------------------
