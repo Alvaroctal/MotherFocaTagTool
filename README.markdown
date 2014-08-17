@@ -61,32 +61,32 @@ A continuación se explica el modo en el que se reconoce la sintaxis.
 
 ## FTP
 
-	* Descripcion
-		Tambien tiene una función para, tras crear el indice, subir el fichero json a un drectorio en un servidor ftp. Para ello echaremos un ojo al fichero de configuracion del programa ($home/.configMFTT.json).
+* Descripcion
+	Tambien tiene una función para, tras crear el indice, subir el fichero json a un drectorio en un servidor ftp. Para ello echaremos un ojo al fichero de configuracion del programa ($home/.configMFTT.json).
 
-	* Sintaxis
+* Sintaxis
 
-		```
-		{	"ftp":{
-				"server": "ip", 
-				"user": "ftpUser", 
-				"pass": "ftpPass"
-				},
-			"peliculas"{
-				"ftp": "pathToDir/peliculas.json",
-				...
+	```
+	{	"ftp":{
+			"server": "ip", 
+			"user": "ftpUser", 
+			"pass": "ftpPass"
 			},
-			"series"{
-				"ftp": "pathToDir/series.json",
-				...
-			}
+		"peliculas"{
+			"ftp": "pathToDir/peliculas.json",
+			...
+		},
+		"series"{
+			"ftp": "pathToDir/series.json",
+			...
 		}
-		```
+	}
+	```
 
-		Es recomendable crear un usuario de ftp exclusivo para el programa, ya que los datos de acceso no estan cifrados (aun).
-		
-	* Opciones
-		- La subida del .json al servidor tras el indexado puede desactivarse desmarcando la opcion en el programa.
+	Es recomendable crear un usuario de ftp exclusivo para el programa, ya que los datos de acceso no estan cifrados (aun).
+	
+* Opciones
+	- La subida del .json al servidor tras el indexado puede desactivarse desmarcando la opcion en el programa.
 
 ## Descarga
 
