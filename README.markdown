@@ -59,6 +59,31 @@ A continuación se explica el modo en el que se reconoce la sintaxis.
 
 	Si una variable no concuerda se tomará como un error tipo, no pertenece a esa serie.
 
+## FTP
+
+	Tambien tiene una función para, tras crear el indice, subir el fichero json a un drectorio en un servidor ftp. Para ello echaremos un ojo al fichero de configuracion del programa ($home/.configMFTT.json).
+
+	```
+	{	"ftp":{
+			"server": "ip", 
+			"user": "ftpUser", 
+			"pass": "ftpPass"
+			},
+		"peliculas"{
+			"ftp": "pathToDir/peliculas.json",
+			...
+		},
+		"series"{
+			"ftp": "pathToDir/series.json",
+			...
+		}
+	}
+	```
+
+	Es recomendable crear un usuario de ftp exclusivo para el programa, ya que los datos de acceso no estan cifrados (aun).
+
+	- La subida del .json al servidor tras el indexado puede desactivarse desmarcando la opcion en el programa.
+
 ## Descarga
 
 Ultima build ==> 
