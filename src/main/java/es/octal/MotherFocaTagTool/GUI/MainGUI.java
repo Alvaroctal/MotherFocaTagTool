@@ -1,5 +1,9 @@
 package main.java.es.octal.MotherFocaTagTool.GUI;
 
+import main.java.es.octal.MotherFocaTagTool.GUI.config.FTPConfigGUI;
+import main.java.es.octal.MotherFocaTagTool.GUI.media.PeliculasGUI;
+import main.java.es.octal.MotherFocaTagTool.GUI.media.SeriesGUI;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
@@ -16,11 +20,8 @@ public class MainGUI extends JFrame {
 
     private JPanel topPanel;
 
-    private JPanel panelLog;
-    private JTabbedPane tabbedPane;
-
-    private JPanel panelPeliculas;
-    private JPanel panelSeries;
+    private JPanel panelIzquierdo, panelDerecho;
+    private JTabbedPane tabbedMedia, tabbedConfig;
 
     JTextArea log;
     JScrollPane messageArea;
@@ -47,36 +48,42 @@ public class MainGUI extends JFrame {
         //  Crear Paneles
         //------------------------------------------------------------------------------
 
-        panelLog = new JPanel();
-        tabbedPane = new JTabbedPane();
+        panelIzquierdo = new JPanel();
+        panelDerecho = new JPanel();
 
-        panelPeliculas = new JPanel();
-        panelSeries = new JPanel();
+        tabbedMedia = new JTabbedPane();
+        tabbedConfig = new JTabbedPane();
 
-        topPanel.add(panelLog, BorderLayout.WEST);
-        topPanel.add(tabbedPane);
+        // Alineaciones
+
+        topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.X_AXIS));
+        panelDerecho.setLayout(new BoxLayout(panelDerecho, BoxLayout.Y_AXIS));
+
+        panelDerecho.add(tabbedMedia);
+        panelDerecho.add(tabbedConfig);
+
+        topPanel.add(panelIzquierdo);
+        topPanel.add(panelDerecho);
 
         //------------------------------------------------------------------------------
         //  Log
         //------------------------------------------------------------------------------
 
-        log = new JTextArea(29, 40);
+        log = new JTextArea(29, 38);
         log.setEditable(false);
         messageArea = new JScrollPane(log,
                 JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        panelLog.add(messageArea);
+        panelIzquierdo.add(messageArea);
 
         //------------------------------------------------------------------------------
         //  Crear las pestañas
         //------------------------------------------------------------------------------
 
+        tabbedMedia.addTab("Peliculas", new PeliculasGUI(log, configFileDir));
+        tabbedMedia.addTab("Series", new SeriesGUI(log, configFileDir));
 
-        PeliculasGUI peliculasGUI = new PeliculasGUI(log, panelPeliculas, configFileDir);
-        SeriesGUI seriesGUI = new SeriesGUI(log, panelSeries, configFileDir);
-
-        tabbedPane.addTab("Peliculas", panelPeliculas);
-        tabbedPane.addTab("Series", panelSeries);
+        tabbedConfig.addTab("FTP", new FTPConfigGUI(log, configFileDir));
 
     }
 }

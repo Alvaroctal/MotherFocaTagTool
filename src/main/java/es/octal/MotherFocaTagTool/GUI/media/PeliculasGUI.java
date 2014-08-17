@@ -1,4 +1,4 @@
-package main.java.es.octal.MotherFocaTagTool.GUI;
+package main.java.es.octal.MotherFocaTagTool.GUI.media;
 
 import main.java.es.octal.MotherFocaTagTool.list.ListaPeliculas;
 import main.java.org.apache.commons.net.net.ftp.FTPClient;
@@ -19,14 +19,13 @@ import java.util.Arrays;
  * MotherFocaTagTool
  */
 
-public class PeliculasGUI extends Component implements ActionListener {
+public class PeliculasGUI extends JPanel implements ActionListener {
 
     // Paneles
 
     private JPanel panelLista;
     private JPanel panelListaBotones;
     private JPanel panelCheckBoxes;
-    private JPanel panelBotones;
 
     // log
 
@@ -40,8 +39,7 @@ public class PeliculasGUI extends Component implements ActionListener {
 
     // Botones
 
-    private JButton añadir, quitar, configurar, tagear, indexar;
-    int buttonSize = 64;
+    private JButton añadir, quitar, indexar;
 
     // CheckBoxes
 
@@ -68,7 +66,7 @@ public class PeliculasGUI extends Component implements ActionListener {
 
     // constructor
 
-    public PeliculasGUI(JTextArea log, JPanel panel, String configFileDir) throws IOException {
+    public PeliculasGUI(JTextArea log, String configFileDir) throws IOException {
 
         // Config
 
@@ -83,18 +81,18 @@ public class PeliculasGUI extends Component implements ActionListener {
         //  Paneles
         //------------------------------------------------------------------------------
 
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
         panelLista = new JPanel();
         panelListaBotones = new JPanel();
         panelCheckBoxes = new JPanel();
-        panelBotones = new JPanel();
 
-        panel.add(panelLista);
-        panel.add(panelCheckBoxes);
-        panel.add(panelBotones);
+        this.add(panelLista);
+        this.add(panelCheckBoxes);
 
         // Alineaciones
+
+        panelLista.setLayout(new BoxLayout(panelLista, BoxLayout.Y_AXIS));
 
         panelListaBotones.setLayout(new BoxLayout(panelListaBotones, BoxLayout.X_AXIS));
 
@@ -108,7 +106,7 @@ public class PeliculasGUI extends Component implements ActionListener {
         lista = new JList(listaDirectorios);
         scrollLista = new JScrollPane(lista);
         lista.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        scrollLista.setPreferredSize(new Dimension(265, 200));
+        scrollLista.setPreferredSize(new Dimension(265, 20));
         panelLista.add(scrollLista);
         panelLista.add(panelListaBotones);
 
@@ -128,6 +126,12 @@ public class PeliculasGUI extends Component implements ActionListener {
         quitar.addActionListener(this);
         panelListaBotones.add(quitar);
 
+        // Indexar
+
+        indexar = new JButton("Indexar");
+        indexar.addActionListener(this);
+        panelListaBotones.add(indexar);
+
         if ( System.getProperty( "os.name" ).toLowerCase( ).startsWith( "mac os x" ) ){
 
             // Es mac
@@ -137,6 +141,9 @@ public class PeliculasGUI extends Component implements ActionListener {
 
             quitar.putClientProperty( "JButton.buttonType", "segmented" );
             quitar.putClientProperty("JButton.segmentPosition", "last");
+
+            indexar.putClientProperty( "JButton.buttonType", "segmented" );
+            indexar.putClientProperty( "JButton.segmentPosition", "only" );
         }
 
         //------------------------------------------------------------------------------
@@ -154,47 +161,6 @@ public class PeliculasGUI extends Component implements ActionListener {
         ftpUpload = new JCheckBox("Subir al FTP");
         ftpUpload.setSelected(true);
         panelCheckBoxes.add(ftpUpload);
-
-        //------------------------------------------------------------------------------
-        //  Botones
-        //------------------------------------------------------------------------------
-
-        JPanel toolbar = new JPanel();
-        toolbar.setLayout(new BoxLayout(toolbar, BoxLayout.X_AXIS));
-
-        // Configurar
-
-        configurar = new JButton("  Ajustes  ", new ImageIcon(getClass().getResource("resources/icons/settings-32.png")));
-        configurar.setPreferredSize(new Dimension(buttonSize, buttonSize));
-        configurar.setMargin(new Insets(0,0,0,0));
-        configurar.setVerticalTextPosition(SwingConstants.BOTTOM);
-        configurar.setHorizontalTextPosition(SwingConstants.CENTER);
-        configurar.addActionListener(this);
-        toolbar.add(configurar, BorderLayout.SOUTH);
-        toolbar.add(new JLabel("  "));
-
-        // Tagear
-
-        tagear = new JButton("  Tagear  ", new ImageIcon(getClass().getResource("resources/icons/tag-32.png")));
-        tagear.setPreferredSize(new Dimension(buttonSize + 20, buttonSize));
-        tagear.setMargin(new Insets(0,0,0,0));
-        tagear.setVerticalTextPosition(SwingConstants.BOTTOM);
-        tagear.setHorizontalTextPosition(SwingConstants.CENTER);
-        tagear.addActionListener(this);
-        toolbar.add(tagear, BorderLayout.SOUTH);
-        toolbar.add(new JLabel("  "));
-
-        // Indexar
-
-        indexar = new JButton("  Indexar  ", new ImageIcon(getClass().getResource("resources/icons/list-32.png")));
-        indexar.setPreferredSize(new Dimension(buttonSize, buttonSize));
-        indexar.setMargin(new Insets(0, 0, 0, 0));
-        indexar.setVerticalTextPosition(SwingConstants.BOTTOM);
-        indexar.setHorizontalTextPosition(SwingConstants.CENTER);
-        indexar.addActionListener(this);
-        toolbar.add(indexar, BorderLayout.SOUTH);
-
-        panelBotones.add(toolbar, BorderLayout.SOUTH);
 
         //------------------------------------------------------------------------------
         //  Comprobacion de configuracion previa
@@ -239,7 +205,7 @@ public class PeliculasGUI extends Component implements ActionListener {
 
                 // Fichero de configuracion no contiene configuraciones de peliculas
 
-                log.append("[error] (Peliculas) Fichero de configuracion existe, pero no contiene configuraciones\n");
+                log.append("[error] (Peliculas) Fichero de configuracion existe, pero contiene configuraciones\n");
             }
         }
         else {
@@ -428,6 +394,14 @@ public class PeliculasGUI extends Component implements ActionListener {
 
                 jsonStoredDirs = new JSONArray(Arrays.asList(listaDirectorios.toArray()));
 
+                if(configFile.exists()){
+                    try {
+                        jsonConfig = new JSONObject(new String(Files.readAllBytes(Paths.get(configFileDir))));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
                 jsonPeliculasConfig.put("Directorios", jsonStoredDirs);
                 jsonConfig.put("Peliculas", jsonPeliculasConfig);
 
@@ -484,15 +458,9 @@ public class PeliculasGUI extends Component implements ActionListener {
         }
 
         //------------------------------------------------------------------------------
-        //  Escuchador de Configurar
+        //  Escuchador de else
         //------------------------------------------------------------------------------
 
-        else if ( evento.getSource() == configurar ) {
-            log.append("WIP - Octal\n");
-        }
-        else if ( evento.getSource() == tagear ) {
-            log.append("WIP - Bio\n");
-        }
         else{
             log.append("[warn] No existe accion asociada al boton\n");
         }
