@@ -44,7 +44,7 @@ public class FTPConfigGUI extends JPanel implements ActionListener {
 
     // Json
 
-    JSONObject jsonConfig, jsonFTPConfig;
+    public JSONObject jsonConfig, jsonFTPConfig;
 
     public FTPConfigGUI(JTextArea log, String configFileDir) throws IOException {
 
@@ -134,6 +134,28 @@ public class FTPConfigGUI extends JPanel implements ActionListener {
                 log.append("[ftp] Se ha cargado la configuracion del ftp\n");
 
             }
+            else{
+                log.append("[ftp] No se encontraron datos\n");
+
+                jsonFTPConfig = new JSONObject();
+
+                jsonFTPConfig.put("server", server.getText());
+                jsonFTPConfig.put("user", user.getText());
+                jsonFTPConfig.put("pass", pass.getPassword());
+
+                jsonConfig.put("ftp", jsonFTPConfig);
+
+                PrintWriter writer = null;
+                try {
+                    writer = new PrintWriter(configFileDir, "UTF-8");
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+                writer.println(jsonConfig.toString(2));
+                writer.close();
+            }
         }
         else {
 
@@ -141,8 +163,8 @@ public class FTPConfigGUI extends JPanel implements ActionListener {
 
             log.append("[ftp] No se encontró fichero de configuracion\n");
 
-            JSONObject jsonFTPConfig = new JSONObject();
-            JSONObject jsonConfig = new JSONObject();
+            jsonFTPConfig = new JSONObject();
+            jsonConfig = new JSONObject();
 
             jsonFTPConfig.put("server", server.getText());
             jsonFTPConfig.put("user", user.getText());
@@ -158,7 +180,7 @@ public class FTPConfigGUI extends JPanel implements ActionListener {
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
-            writer.println(jsonConfig.toString());
+            writer.println(jsonConfig.toString(2));
             writer.close();
         }
     }
@@ -177,9 +199,6 @@ public class FTPConfigGUI extends JPanel implements ActionListener {
 
             // Guardar
 
-            jsonFTPConfig = new JSONObject();
-            jsonConfig = new JSONObject();
-
             jsonFTPConfig.put("server", server.getText());
             jsonFTPConfig.put("user", user.getText());
             jsonFTPConfig.put("pass", new String(pass.getPassword()));
@@ -194,7 +213,7 @@ public class FTPConfigGUI extends JPanel implements ActionListener {
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
-            writer.println(jsonConfig.toString());
+            writer.println(jsonConfig.toString(4));
             writer.close();
 
             log.append("[ftp] Configuracion del FTP actualizada\n");

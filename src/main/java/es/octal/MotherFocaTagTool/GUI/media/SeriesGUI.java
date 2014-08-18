@@ -289,7 +289,7 @@ public class SeriesGUI extends JPanel implements ActionListener {
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
-                writer.println(jsonSeries.toString());
+                writer.println(jsonSeries.toString(4));
                 writer.close();
 
                 //------------------------------------------------------------------------------
@@ -415,7 +415,7 @@ public class SeriesGUI extends JPanel implements ActionListener {
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
-                writer.println(jsonConfig.toString());
+                writer.println(jsonConfig.toString(4));
                 writer.close();
             }
         }
@@ -448,7 +448,7 @@ public class SeriesGUI extends JPanel implements ActionListener {
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
-                writer.println(jsonConfig.toString());
+                writer.println(jsonConfig.toString(4));
                 writer.close();
 
                 log.append(" ** Eliminado **\n");

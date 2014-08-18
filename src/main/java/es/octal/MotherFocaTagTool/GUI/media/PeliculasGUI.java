@@ -288,7 +288,7 @@ public class PeliculasGUI extends JPanel implements ActionListener {
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
-                writer.println(jsonPeliculas.toString());
+                writer.println(jsonPeliculas.toString(4));
                 writer.close();
 
                 //------------------------------------------------------------------------------
@@ -413,7 +413,7 @@ public class PeliculasGUI extends JPanel implements ActionListener {
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
-                writer.println(jsonConfig.toString());
+                writer.println(jsonConfig.toString(4));
                 writer.close();
             }
         }
@@ -447,7 +447,7 @@ public class PeliculasGUI extends JPanel implements ActionListener {
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
-                writer.println(jsonConfig.toString());
+                writer.println(jsonConfig.toString(4));
                 writer.close();
 
                 log.append(" ** Eliminado **\n");
