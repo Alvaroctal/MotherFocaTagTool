@@ -1,5 +1,6 @@
 package main.java.es.octal.MotherFocaTagTool.GUI.media;
 
+import main.java.es.octal.MotherFocaTagTool.GUI.config.data.Config;
 import main.java.es.octal.MotherFocaTagTool.list.ListaPeliculas;
 import main.java.org.apache.commons.net.net.ftp.FTPClient;
 import main.java.org.json.JSONArray;
@@ -10,8 +11,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Arrays;
 
 /**
@@ -21,21 +20,22 @@ import java.util.Arrays;
 
 public class PeliculasGUI extends JPanel implements ActionListener {
 
+    // Externas
+
+    private Config config;
+    private JTextArea log;
+
     // Paneles
 
     private JPanel panelLista;
     private JPanel panelListaBotones;
     private JPanel panelCheckBoxes;
 
-    // log
-
-    JTextArea log;
-
     // Lista
 
-    JList lista;
-    JScrollPane scrollLista;
-    DefaultListModel listaDirectorios = new DefaultListModel();
+    private JList lista;
+    private JScrollPane scrollLista;
+    private DefaultListModel listaDirectorios;
 
     // Botones
 
@@ -46,36 +46,30 @@ public class PeliculasGUI extends JPanel implements ActionListener {
     private JCheckBox showOnlyFails;
     private JCheckBox ftpUpload;
 
-    // Json
-
-    JSONObject jsonConfig;
-    JSONObject jsonPeliculasConfig;
-    JSONArray jsonStoredDirs;
-
-    JSONObject jsonPeliculas;
-
-    // File
-
-    File configFile;
-    public String configFileDir;
-    public String jsonPeliculasDir = System.getProperty("user.home") + File.separator + "peliculas.json";
-
     // Clase
 
-    ListaPeliculas listaPeliculas = new ListaPeliculas();
+    private ListaPeliculas listaPeliculas = new ListaPeliculas();
+
+    // JSON
+
+    private JSONObject jsonPeliculas;
 
     // constructor
 
-    public PeliculasGUI(JTextArea log, String configFileDir) throws IOException {
+    public PeliculasGUI(JTextArea log, Config config) throws IOException {
 
-        // Config
+        //------------------------------------------------------------------------------
+        //  Variables externas
+        //------------------------------------------------------------------------------
 
-        this.configFileDir = configFileDir;
-        configFile = new File(configFileDir);
-
-        // Log
-
+        this.config = config;
         this.log = log;
+
+        //------------------------------------------------------------------------------
+        //  Configuracion
+        //------------------------------------------------------------------------------
+
+        listaDirectorios = config.peliculas.getDirsList();
 
         //------------------------------------------------------------------------------
         //  Paneles
@@ -162,66 +156,6 @@ public class PeliculasGUI extends JPanel implements ActionListener {
         ftpUpload.setSelected(true);
         panelCheckBoxes.add(ftpUpload);
 
-        //------------------------------------------------------------------------------
-        //  Comprobacion de configuracion previa
-        //------------------------------------------------------------------------------
-
-        if(configFile.exists() && !configFile.isDirectory()) {
-
-            // El fichero de configuracion existe
-
-            jsonConfig = new JSONObject(new String(Files.readAllBytes(Paths.get(configFileDir))));
-
-            if (jsonConfig.has("Peliculas")) {
-
-                // El fichero de configuracion contiene configuracion sobre peliculas
-
-                jsonPeliculasConfig = jsonConfig.getJSONObject("Peliculas");
-
-                if (jsonPeliculasConfig.has("Directorios")) {
-
-                    // La configuracion sobre peliculas contiene directorios
-
-                    jsonStoredDirs = jsonPeliculasConfig.getJSONArray("Directorios");
-
-                    for (int i = 0; i < jsonStoredDirs.length(); i++) {
-
-                        // Añadimos a la lista uno a uno los elementos del array de directorios
-
-                        listaDirectorios.addElement(jsonStoredDirs.getString(i));
-                    }
-
-                    lista.setModel(listaDirectorios);
-                    log.append("[peliculas] Se ha cargado la configuracion\n");
-                }
-                else {
-
-                    // Fichero de configuracion contiene configuracion de peliculas, pero no directorios (raro)
-
-                    log.append("[error] (Peliculas) Fichero de configuracion existe, pero no contiene directorios\n");
-                }
-            }
-            else {
-
-                // Fichero de configuracion no contiene configuraciones de peliculas
-
-                log.append("[error] (Peliculas) Fichero de configuracion existe, pero contiene configuraciones\n");
-            }
-        }
-        else {
-
-            // Fichero de configuracion no existe
-
-            log.append("[info] (Peliculas) No existe fichero de configuracion\n");
-
-            jsonConfig = new JSONObject();
-            jsonPeliculasConfig = new JSONObject();
-            jsonStoredDirs = new JSONArray();
-
-        }
-
-        jsonPeliculasConfig.put("Directorios", jsonStoredDirs);
-        jsonConfig.put("Peliculas", jsonPeliculasConfig);
     }
 
     //------------------------------------------------------------------------------
@@ -231,7 +165,7 @@ public class PeliculasGUI extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent evento) {
 
         //------------------------------------------------------------------------------
-        //  Escuhador de indexar
+        //  Escuchador de indexar
         //------------------------------------------------------------------------------
 
         if (evento.getSource() == indexar) {
@@ -240,9 +174,12 @@ public class PeliculasGUI extends JPanel implements ActionListener {
 
             log.setText(null);
 
+            listaDirectorios = config.peliculas.getDirsList();
+
             if (listaDirectorios.size() == 0) {
                 log.append("No existen directorios a indexar\n");
-            } else {
+            }
+            else {
 
                 // Creamos un json de peliculas
 
@@ -255,10 +192,10 @@ public class PeliculasGUI extends JPanel implements ActionListener {
                     // Obtenemos el i directorio de la lista
 
                     String directorio = (String) listaDirectorios.get(i);
-                    log.append("Indexando (" + ((i + 1)) + File.separator + listaDirectorios.size() + "): " + directorio + "\n");
+                    log.append("Indexando (" + ((i + 1)) + "/" + listaDirectorios.size() + "): " + directorio + "\n");
                     try {
 
-                        // Para cada directorio de la lista obtenemos la lista de peliclas en forma de json
+                        // Para cada directorio de la lista obtenemos la lista de peliculas en forma de json
 
                         jsonPeliculas = listaPeliculas.creaIndice(log, directorio, jsonPeliculas, showOnlyFails.isSelected());
 
@@ -282,7 +219,7 @@ public class PeliculasGUI extends JPanel implements ActionListener {
 
                 PrintWriter writer = null;
                 try {
-                    writer = new PrintWriter(jsonPeliculasDir, "UTF-8");
+                    writer = new PrintWriter(config.peliculas.getfilePath(), "UTF-8");
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 } catch (UnsupportedEncodingException e) {
@@ -296,64 +233,52 @@ public class PeliculasGUI extends JPanel implements ActionListener {
                 //------------------------------------------------------------------------------
 
                 if (ftpUpload.isSelected()) {
-                    if (jsonConfig.has("ftp")) {
-                        if (jsonPeliculas.getBoolean("noFail")) {
+                    if (jsonPeliculas.getBoolean("noFail")) {
 
-                            // El fichero de configuracion contiene configuracion sobre peliculas
+                        // El fichero de configuracion contiene configuracion sobre peliculas
 
-                            JSONObject jsonFtpConfig = jsonConfig.getJSONObject("ftp");
+                        FTPClient ftpClient = new FTPClient();
 
-                            FTPClient ftpClient = new FTPClient();
+                        //------------------------------------------------------------------------------
+                        //  FTP conect
+                        //------------------------------------------------------------------------------
 
-                            String sFTP = jsonFtpConfig.getString("server");
-                            String sUser = jsonFtpConfig.getString("user");
-                            String sPassword = jsonFtpConfig.getString("pass");
-
-                            //------------------------------------------------------------------------------
-                            //  FTP conect
-                            //------------------------------------------------------------------------------
-
-                            try {
-                                ftpClient.connect(sFTP);
-                            } catch (IOException e) {
-                                e.printStackTrace();
+                        try {
+                            ftpClient.connect(config.ftp.getServer());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        try {
+                            if (ftpClient.login(config.ftp.getUser(), config.ftp.getPass())) {
+                                log.append("[ftp] acceso concedido\n");
+                            } else {
+                                log.append("[ftp] acceso denegado\n");
                             }
-                            try {
-                                if (ftpClient.login(sUser, sPassword)) {
-                                    log.append("[ftp] acceso concedido\n");
-                                } else {
-                                    log.append("[ftp] acceso denegado\n");
-                                }
-                            } catch (IOException e) {
-                                e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        //------------------------------------------------------------------------------
+                        //  FTP upload
+                        //------------------------------------------------------------------------------
+
+                        try {
+
+                            InputStream inputStream = new FileInputStream(new File(config.peliculas.getfilePath()));
+
+                            log.append("[ftp] Iniciando subida al servidor...\n");
+                            boolean done = ftpClient.storeFile(config.peliculas.getFtpFilePath(), inputStream);
+                            inputStream.close();
+                            if (done) {
+                                log.append("[ftp] Subida completada\n");
+                            } else {
+                                log.append("[ftp] Error, no se pudo subir el archivo\n");
                             }
-
-                            //------------------------------------------------------------------------------
-                            //  FTP upload
-                            //------------------------------------------------------------------------------
-
-                            try {
-                                File firstLocalFile = new File(jsonPeliculasDir);
-
-                                String firstRemoteFile = jsonPeliculasConfig.getString("ftp");
-                                InputStream inputStream = new FileInputStream(firstLocalFile);
-
-                                log.append("[ftp] Iniciando subida al servidor...\n");
-                                boolean done = ftpClient.storeFile(firstRemoteFile, inputStream);
-                                inputStream.close();
-                                if (done) {
-                                    log.append("[ftp] Subida completada\n");
-                                } else {
-                                    log.append("[ftp] Error, no se pudo subir el archivo\n");
-                                }
-                            } catch (IOException ioe) {
-                                log.append("[error] No se pudo subir el archivo al servidor\n");
-                            }
-                        } else {
-                            log.append("[ftp] Se encontraron errores, subida cancelada\n");
+                        } catch (IOException ioe) {
+                            log.append("[error] No se pudo subir el archivo al servidor\n");
                         }
                     } else {
-                        log.append("[ftp] json data missing\n");
+                        log.append("[ftp] Se encontraron errores, subida cancelada\n");
                     }
                 }
                 else {
@@ -388,33 +313,23 @@ public class PeliculasGUI extends JPanel implements ActionListener {
                     log.append("Agregado directorio: " + folderList[i].getAbsolutePath() + "/\n");
                 }
 
+                // Actualizar la lista
+
                 lista.setModel( listaDirectorios );
 
-                // Escribimos el fichero de configuracion
+                // Actializar la configuracion
 
-                jsonStoredDirs = new JSONArray(Arrays.asList(listaDirectorios.toArray()));
+                config.peliculas.edit(new JSONArray(Arrays.asList(listaDirectorios.toArray())));
 
-                if(configFile.exists()){
-                    try {
-                        jsonConfig = new JSONObject(new String(Files.readAllBytes(Paths.get(configFileDir))));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
+                // Guardar la configuracion
 
-                jsonPeliculasConfig.put("Directorios", jsonStoredDirs);
-                jsonConfig.put("Peliculas", jsonPeliculasConfig);
-
-                PrintWriter writer = null;
                 try {
-                    writer = new PrintWriter(configFileDir, "UTF-8");
+                    config.save();
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
-                writer.println(jsonConfig.toString(4));
-                writer.close();
             }
         }
 
@@ -429,31 +344,27 @@ public class PeliculasGUI extends JPanel implements ActionListener {
             try {
                 listaDirectorios.removeElementAt(lista.getSelectedIndex());
 
+                // Actualizamos la lista
 
                 lista.setModel(listaDirectorios);
 
-                // Escribir el json de configuracion
+                // Actualizamos la configuracion
 
-                jsonStoredDirs = new JSONArray(Arrays.asList(listaDirectorios.toArray()));
+                config.peliculas.edit(new JSONArray(Arrays.asList(listaDirectorios.toArray())));
 
-                jsonPeliculasConfig.put("Directorios", jsonStoredDirs);
-                jsonConfig.put("Peliculas", jsonPeliculasConfig);
+                // Guardamos la configuracion
 
-                PrintWriter writer = null;
-                try {
-                    writer = new PrintWriter(configFileDir, "UTF-8");
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-                writer.println(jsonConfig.toString(4));
-                writer.close();
+                config.save();
 
-                log.append(" ** Eliminado **\n");
+                log.append("[peliculas] Directorio eliminado\n");
             }
             catch (ArrayIndexOutOfBoundsException e){
                 log.append("No has seleccionado ningun directorio\n");
+                System.out.print(lista.getSelectedIndex());
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
             }
         }
 

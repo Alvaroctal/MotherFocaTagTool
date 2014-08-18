@@ -1,6 +1,7 @@
 package main.java.es.octal.MotherFocaTagTool.GUI;
 
 import main.java.es.octal.MotherFocaTagTool.GUI.config.FTPConfigGUI;
+import main.java.es.octal.MotherFocaTagTool.GUI.config.data.Config;
 import main.java.es.octal.MotherFocaTagTool.GUI.media.PeliculasGUI;
 import main.java.es.octal.MotherFocaTagTool.GUI.media.SeriesGUI;
 
@@ -57,6 +58,9 @@ public class MainGUI extends JFrame {
         // Alineaciones
 
         topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.X_AXIS));
+
+        panelIzquierdo.setLayout(new BoxLayout(panelIzquierdo, BoxLayout.X_AXIS));
+        panelIzquierdo.setLayout(new BoxLayout(panelIzquierdo, BoxLayout.Y_AXIS));
         panelDerecho.setLayout(new BoxLayout(panelDerecho, BoxLayout.Y_AXIS));
 
         panelDerecho.add(tabbedMedia);
@@ -69,7 +73,7 @@ public class MainGUI extends JFrame {
         //  Log
         //------------------------------------------------------------------------------
 
-        log = new JTextArea(29, 38);
+        log = new JTextArea(0, 38);
         log.setEditable(false);
         messageArea = new JScrollPane(log,
                 JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
@@ -77,13 +81,19 @@ public class MainGUI extends JFrame {
         panelIzquierdo.add(messageArea);
 
         //------------------------------------------------------------------------------
+        //  Configuracion
+        //------------------------------------------------------------------------------
+
+        Config config = new Config(log, configFileDir);
+
+        //------------------------------------------------------------------------------
         //  Crear las pestañas
         //------------------------------------------------------------------------------
 
-        tabbedMedia.addTab("Peliculas", new PeliculasGUI(log, configFileDir));
-        tabbedMedia.addTab("Series", new SeriesGUI(log, configFileDir));
+        tabbedMedia.addTab("Peliculas", new PeliculasGUI(log, config));
+        tabbedMedia.addTab("Series", new SeriesGUI(log, config));
 
-        tabbedConfig.addTab("FTP", new FTPConfigGUI(log, configFileDir));
+        tabbedConfig.addTab("FTP", new FTPConfigGUI(log, config));
 
     }
 }

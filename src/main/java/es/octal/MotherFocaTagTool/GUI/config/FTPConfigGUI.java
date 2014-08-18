@@ -1,13 +1,13 @@
 package main.java.es.octal.MotherFocaTagTool.GUI.config;
 
-import main.java.org.json.JSONObject;
+import main.java.es.octal.MotherFocaTagTool.GUI.config.data.Config;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 /**
  * Created by Alvaro on 17/08/14.
@@ -19,6 +19,10 @@ public class FTPConfigGUI extends JPanel implements ActionListener {
     // log
 
     JTextArea log;
+
+    // Config
+
+    Config config;
 
     // Paneles
 
@@ -37,16 +41,7 @@ public class FTPConfigGUI extends JPanel implements ActionListener {
 
     private JButton guardar;
 
-    // File
-
-    File configFile;
-    String configFileDir;
-
-    // Json
-
-    public JSONObject jsonConfig, jsonFTPConfig;
-
-    public FTPConfigGUI(JTextArea log, String configFileDir) throws IOException {
+    public FTPConfigGUI(JTextArea log, Config config) throws IOException {
 
         // Log
 
@@ -54,8 +49,7 @@ public class FTPConfigGUI extends JPanel implements ActionListener {
 
         // Config
 
-        this.configFileDir = configFileDir;
-        configFile = new File(configFileDir);
+        this.config = config;
 
         //------------------------------------------------------------------------------
         //  Paneles
@@ -109,80 +103,16 @@ public class FTPConfigGUI extends JPanel implements ActionListener {
 
         this.add(panelFormularioInferior);
 
-        //------------------------------------------------------------------------------
-        //  Comprobacion de configuracion previa
-        //------------------------------------------------------------------------------
+        // Mostramos los valores en los JTextfield
 
-        if(configFile.exists() && !configFile.isDirectory()) {
+        server.setText(config.ftp.getServer());
+        user.setText(config.ftp.getUser());
+        pass.setText(config.ftp.getPass());
 
-            // El fichero de configuracion existe
+        log.append("[ftp] Se ha cargado la configuracion del ftp\n");
 
-            jsonConfig = new JSONObject(new String(Files.readAllBytes(Paths.get(configFileDir))));
 
-            if (jsonConfig.has("ftp")) {
 
-                // El fichero de configuracion contiene configuracion sobre peliculas
-
-                jsonFTPConfig = jsonConfig.getJSONObject("ftp");
-
-                // Mostramos los valores en los JTextfield
-
-                server.setText(jsonFTPConfig.getString("server"));
-                user.setText(jsonFTPConfig.getString("user"));
-                pass.setText(jsonFTPConfig.getString("pass"));
-
-                log.append("[ftp] Se ha cargado la configuracion del ftp\n");
-
-            }
-            else{
-                log.append("[ftp] No se encontraron datos\n");
-
-                jsonFTPConfig = new JSONObject();
-
-                jsonFTPConfig.put("server", server.getText());
-                jsonFTPConfig.put("user", user.getText());
-                jsonFTPConfig.put("pass", pass.getPassword());
-
-                jsonConfig.put("ftp", jsonFTPConfig);
-
-                PrintWriter writer = null;
-                try {
-                    writer = new PrintWriter(configFileDir, "UTF-8");
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-                writer.println(jsonConfig.toString(2));
-                writer.close();
-            }
-        }
-        else {
-
-            // El fichero de configuracion no existe, se creara
-
-            log.append("[ftp] No se encontró fichero de configuracion\n");
-
-            jsonFTPConfig = new JSONObject();
-            jsonConfig = new JSONObject();
-
-            jsonFTPConfig.put("server", server.getText());
-            jsonFTPConfig.put("user", user.getText());
-            jsonFTPConfig.put("pass", pass.getPassword());
-
-            jsonConfig.put("ftp", jsonFTPConfig);
-
-            PrintWriter writer = null;
-            try {
-                writer = new PrintWriter(configFileDir, "UTF-8");
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-            writer.println(jsonConfig.toString(2));
-            writer.close();
-        }
     }
 
     //------------------------------------------------------------------------------
@@ -199,22 +129,14 @@ public class FTPConfigGUI extends JPanel implements ActionListener {
 
             // Guardar
 
-            jsonFTPConfig.put("server", server.getText());
-            jsonFTPConfig.put("user", user.getText());
-            jsonFTPConfig.put("pass", new String(pass.getPassword()));
-
-            jsonConfig.put("ftp", jsonFTPConfig);
-
-            PrintWriter writer = null;
+            config.ftp.edit(server.getText(), user.getText(), new String(pass.getPassword()));
             try {
-                writer = new PrintWriter(configFileDir, "UTF-8");
+                config.save();
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
-            writer.println(jsonConfig.toString(4));
-            writer.close();
 
             log.append("[ftp] Configuracion del FTP actualizada\n");
         }
