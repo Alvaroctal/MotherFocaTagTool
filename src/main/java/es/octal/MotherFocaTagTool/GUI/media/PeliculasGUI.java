@@ -1,6 +1,6 @@
 package main.java.es.octal.MotherFocaTagTool.GUI.media;
 
-import main.java.es.octal.MotherFocaTagTool.GUI.config.data.Config;
+import main.java.es.octal.MotherFocaTagTool.config.Config;
 import main.java.es.octal.MotherFocaTagTool.list.ListaPeliculas;
 import main.java.org.apache.commons.net.net.ftp.FTPClient;
 import main.java.org.json.JSONArray;
@@ -48,11 +48,11 @@ public class PeliculasGUI extends JPanel implements ActionListener {
 
     // Clase
 
-    private ListaPeliculas listaPeliculas = new ListaPeliculas();
+    private ListaPeliculas listaPeliculas;
 
     // JSON
 
-    private JSONObject jsonPeliculas;
+    private JSONObject json;
 
     // constructor
 
@@ -183,9 +183,11 @@ public class PeliculasGUI extends JPanel implements ActionListener {
 
                 // Creamos un json de peliculas
 
-                jsonPeliculas = new JSONObject();
+                json = new JSONObject();
 
                 Boolean noFailGlobal = true;
+
+                listaPeliculas = new ListaPeliculas(log, showOnlyFails.isSelected());
 
                 for (int i = 0; i < listaDirectorios.size(); i++) {
 
@@ -197,20 +199,24 @@ public class PeliculasGUI extends JPanel implements ActionListener {
 
                         // Para cada directorio de la lista obtenemos la lista de peliculas en forma de json
 
-                        jsonPeliculas = listaPeliculas.creaIndice(log, directorio, jsonPeliculas, showOnlyFails.isSelected());
+                        json = listaPeliculas.creaIndice(directorio, json);
 
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     } catch (UnsupportedEncodingException e) {
                         e.printStackTrace();
                     }
-                    if (! jsonPeliculas.getBoolean("noFail")) {
+                    if (! json.getBoolean("noFail")) {
                         noFailGlobal = false;
                     }
                 }
                 if (! noFailGlobal){
                     log.append("*************************************************************\n");
                     log.append("[warn] Se detectaron 1 o mas errores de sintaxis\n");
+                }
+                else {
+                    log.append("*************************************************************\n");
+                    log.append("[peliculas] Sintaxis correcta\n");
                 }
 
                 //------------------------------------------------------------------------------
@@ -225,7 +231,7 @@ public class PeliculasGUI extends JPanel implements ActionListener {
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
-                writer.println(jsonPeliculas.toString(4));
+                writer.println(json.toString(4));
                 writer.close();
 
                 //------------------------------------------------------------------------------
@@ -233,7 +239,7 @@ public class PeliculasGUI extends JPanel implements ActionListener {
                 //------------------------------------------------------------------------------
 
                 if (ftpUpload.isSelected()) {
-                    if (jsonPeliculas.getBoolean("noFail")) {
+                    if (json.getBoolean("noFail")) {
 
                         // El fichero de configuracion contiene configuracion sobre peliculas
 

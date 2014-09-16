@@ -1,4 +1,4 @@
-package main.java.es.octal.MotherFocaTagTool.GUI.config.data.subdata;
+package main.java.es.octal.MotherFocaTagTool.config.data;
 
 import main.java.org.json.JSONObject;
 

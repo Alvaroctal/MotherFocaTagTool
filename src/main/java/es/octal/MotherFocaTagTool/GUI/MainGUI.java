@@ -1,7 +1,7 @@
 package main.java.es.octal.MotherFocaTagTool.GUI;
 
-import main.java.es.octal.MotherFocaTagTool.GUI.config.FTPConfigGUI;
-import main.java.es.octal.MotherFocaTagTool.GUI.config.data.Config;
+import main.java.es.octal.MotherFocaTagTool.GUI.config.FTPGUI;
+import main.java.es.octal.MotherFocaTagTool.config.Config;
 import main.java.es.octal.MotherFocaTagTool.GUI.media.PeliculasGUI;
 import main.java.es.octal.MotherFocaTagTool.GUI.media.SeriesGUI;
 
@@ -39,7 +39,7 @@ public class MainGUI extends JFrame {
         //  Crear la ventana
         //------------------------------------------------------------------------------
 
-        setTitle("Crear listado");
+        setTitle("MotherFocaTagTool");
         setSize(800, 500);
         topPanel = new JPanel();
         topPanel.setLayout(new BorderLayout());
@@ -93,7 +93,7 @@ public class MainGUI extends JFrame {
         tabbedMedia.addTab("Peliculas", new PeliculasGUI(log, config));
         tabbedMedia.addTab("Series", new SeriesGUI(log, config));
 
-        tabbedConfig.addTab("FTP", new FTPConfigGUI(log, config));
+        tabbedConfig.addTab("FTP", new FTPGUI(log, config));
 
     }
 }

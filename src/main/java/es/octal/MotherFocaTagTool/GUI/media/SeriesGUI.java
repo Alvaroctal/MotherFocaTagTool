@@ -1,6 +1,6 @@
 package main.java.es.octal.MotherFocaTagTool.GUI.media;
 
-import main.java.es.octal.MotherFocaTagTool.GUI.config.data.Config;
+import main.java.es.octal.MotherFocaTagTool.config.Config;
 import main.java.es.octal.MotherFocaTagTool.list.ListaSeries;
 import main.java.org.apache.commons.net.net.ftp.FTPClient;
 import main.java.org.json.JSONArray;
@@ -210,6 +210,10 @@ public class SeriesGUI extends JPanel implements ActionListener {
                 if (! noFailGlobal){
                     log.append("*************************************************************\n");
                     log.append("[warn] Se detectaron 1 o mas errores de sintaxis\n");
+                }
+                else {
+                    log.append("*************************************************************\n");
+                    log.append("[series] Sintaxis correcta\n");
                 }
 
                 //------------------------------------------------------------------------------

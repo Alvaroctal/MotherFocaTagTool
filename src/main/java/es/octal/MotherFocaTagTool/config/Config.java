@@ -1,7 +1,7 @@
-package main.java.es.octal.MotherFocaTagTool.GUI.config.data;
+package main.java.es.octal.MotherFocaTagTool.config;
 
-import main.java.es.octal.MotherFocaTagTool.GUI.config.data.subdata.FtpConfig;
-import main.java.es.octal.MotherFocaTagTool.GUI.config.data.subdata.MediaConfig;
+import main.java.es.octal.MotherFocaTagTool.config.data.FtpConfig;
+import main.java.es.octal.MotherFocaTagTool.config.data.MediaConfig;
 import main.java.org.json.JSONArray;
 import main.java.org.json.JSONObject;
 

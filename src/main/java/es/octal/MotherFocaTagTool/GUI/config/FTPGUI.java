@@ -1,6 +1,6 @@
 package main.java.es.octal.MotherFocaTagTool.GUI.config;
 
-import main.java.es.octal.MotherFocaTagTool.GUI.config.data.Config;
+import main.java.es.octal.MotherFocaTagTool.config.Config;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -14,7 +14,7 @@ import java.io.UnsupportedEncodingException;
  * MotherFocaTagTool
  */
 
-public class FTPConfigGUI extends JPanel implements ActionListener {
+public class FTPGUI extends JPanel implements ActionListener {
 
     // log
 
@@ -41,7 +41,7 @@ public class FTPConfigGUI extends JPanel implements ActionListener {
 
     private JButton guardar;
 
-    public FTPConfigGUI(JTextArea log, Config config) throws IOException {
+    public FTPGUI(JTextArea log, Config config) throws IOException {
 
         // Log
 
@@ -108,10 +108,6 @@ public class FTPConfigGUI extends JPanel implements ActionListener {
         server.setText(config.ftp.getServer());
         user.setText(config.ftp.getUser());
         pass.setText(config.ftp.getPass());
-
-        log.append("[ftp] Se ha cargado la configuracion del ftp\n");
-
-
 
     }
 

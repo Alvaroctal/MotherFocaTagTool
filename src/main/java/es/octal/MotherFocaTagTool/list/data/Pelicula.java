@@ -3,6 +3,8 @@ package main.java.es.octal.MotherFocaTagTool.list.data;
 import main.java.org.json.JSONObject;
 
 import java.io.File;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by Alvaro on 01/08/14.
@@ -10,34 +12,54 @@ import java.io.File;
  */
 public class Pelicula {
 
-    // Nombres
+    private String name;
+    private File file;
+    private JSONObject json;
 
-    public String nombrePelicula;
-    public String nombreSaga;
+    private String patron = "([0-9a-zA-Zá-ú-ñ\\- ]*) \\(([0-9]*)\\) \\[([0-9]*)\\] \\[(Dual|Cast|Vose)\\]";
 
-    // Directorios
+    // Constructor
 
-    public String sagaDir;
+    public Pelicula(File file) {
 
-    // Objetos File
+        this.file = file;
+        this.name = this.file.getName();
+    }
 
-    public File sagaFile;
+    public boolean verify(){
 
-    // Patron
+        // Verifica el archivo
 
-    public String patron = "([0-9a-zA-Zá-ú-ñ\\- ]*) \\(([0-9]*)\\) \\[([0-9]*)\\] \\[(Dual|Cast|Vose)\\]";
+        Pattern pattern = Pattern.compile(this.patron);
+        Matcher m = pattern.matcher(this.name);
+        if (m.find()) {
 
-    // Listas
+            // Nueva pelicula
 
-    public File[] listaSaga;
+            this.json = new JSONObject();
+            this.json.put("titulo", m.group(1));
+            this.json.put("año", m.group(2));
+            this.json.put("definicion", m.group(3));
+            this.json.put("audio", m.group(4));
+            this.json.put("size", this.file.length());
 
-    // Json
+            return true;
+        }
+        else {
 
-    public JSONObject jsonSaga;
-    public JSONObject jsonPelicula;
+            return false;
+        }
+    }
 
-    public Pelicula() {
+    // Get privates
 
-        // Constructor nulo
+    public String getName(){
+        return this.name;
+    }
+    public JSONObject getJson(){
+        return this.json;
+    }
+    public String getAbsolutePath(){
+        return this.file.getAbsolutePath();
     }
 }
