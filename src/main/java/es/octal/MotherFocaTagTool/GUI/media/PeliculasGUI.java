@@ -1,10 +1,9 @@
 package main.java.es.octal.MotherFocaTagTool.GUI.media;
 
 import main.java.es.octal.MotherFocaTagTool.config.Config;
-import main.java.es.octal.MotherFocaTagTool.list.ListaPeliculas;
+import main.java.es.octal.MotherFocaTagTool.mediaHandlers.Peliculas;
 import main.java.org.apache.commons.net.net.ftp.FTPClient;
 import main.java.org.json.JSONArray;
-import main.java.org.json.JSONObject;
 
 import javax.swing.*;
 import java.awt.*;
@@ -48,11 +47,7 @@ public class PeliculasGUI extends JPanel implements ActionListener {
 
     // Clase
 
-    private ListaPeliculas listaPeliculas;
-
-    // JSON
-
-    private JSONObject json;
+    private Peliculas peliculas;
 
     // constructor
 
@@ -181,13 +176,9 @@ public class PeliculasGUI extends JPanel implements ActionListener {
             }
             else {
 
-                // Creamos un json de peliculas
-
-                json = new JSONObject();
-
                 Boolean noFailGlobal = true;
 
-                listaPeliculas = new ListaPeliculas(log, showOnlyFails.isSelected());
+                peliculas = new Peliculas(log, showOnlyFails.isSelected());
 
                 for (int i = 0; i < listaDirectorios.size(); i++) {
 
@@ -197,16 +188,14 @@ public class PeliculasGUI extends JPanel implements ActionListener {
                     log.append("Indexando (" + ((i + 1)) + "/" + listaDirectorios.size() + "): " + directorio + "\n");
                     try {
 
-                        // Para cada directorio de la lista obtenemos la lista de peliculas en forma de json
-
-                        json = listaPeliculas.creaIndice(directorio, json);
+                        peliculas.listar(directorio);
 
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     } catch (UnsupportedEncodingException e) {
                         e.printStackTrace();
                     }
-                    if (! json.getBoolean("noFail")) {
+                    if (! peliculas.getNoFail()) {
                         noFailGlobal = false;
                     }
                 }
@@ -231,7 +220,7 @@ public class PeliculasGUI extends JPanel implements ActionListener {
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
-                writer.println(json.toString(4));
+                writer.println(peliculas.getJson().toString(4));
                 writer.close();
 
                 //------------------------------------------------------------------------------
@@ -239,7 +228,7 @@ public class PeliculasGUI extends JPanel implements ActionListener {
                 //------------------------------------------------------------------------------
 
                 if (ftpUpload.isSelected()) {
-                    if (json.getBoolean("noFail")) {
+                    if (peliculas.getNoFail()) {
 
                         // El fichero de configuracion contiene configuracion sobre peliculas
 

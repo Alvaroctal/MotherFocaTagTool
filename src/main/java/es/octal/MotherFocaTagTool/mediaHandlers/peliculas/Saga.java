@@ -1,4 +1,4 @@
-package main.java.es.octal.MotherFocaTagTool.list.data;
+package main.java.es.octal.MotherFocaTagTool.mediaHandlers.peliculas;
 
 import main.java.org.json.JSONObject;
 
@@ -12,15 +12,15 @@ public class Saga {
 
     private String name;
     private JSONObject json = new JSONObject();
-    private File fileSaga;
+    private File file;
     private int cuentaPeliculas;
 
     // Constructor
 
     public Saga(File fileSaga){
 
-        this.fileSaga = fileSaga;
-        this.name = this.fileSaga.getName();
+        this.file = fileSaga;
+        this.name = this.file.getName();
     }
 
     public void addMovie(JSONObject pelicula){
@@ -34,7 +34,7 @@ public class Saga {
         return this.name;
     }
     public File[] getList(){
-        return this.fileSaga.listFiles();
+        return this.file.listFiles();
     }
     public JSONObject getJson(){
         this.json.put("cuentaPeliculas", this.cuentaPeliculas);

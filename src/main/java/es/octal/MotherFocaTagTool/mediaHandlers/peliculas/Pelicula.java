@@ -1,4 +1,4 @@
-package main.java.es.octal.MotherFocaTagTool.list.data;
+package main.java.es.octal.MotherFocaTagTool.mediaHandlers.peliculas;
 
 import main.java.org.json.JSONObject;
 
@@ -45,10 +45,8 @@ public class Pelicula {
 
             return true;
         }
-        else {
 
-            return false;
-        }
+        return false;
     }
 
     // Get privates

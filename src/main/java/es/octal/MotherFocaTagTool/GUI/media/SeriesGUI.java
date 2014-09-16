@@ -1,7 +1,7 @@
 package main.java.es.octal.MotherFocaTagTool.GUI.media;
 
 import main.java.es.octal.MotherFocaTagTool.config.Config;
-import main.java.es.octal.MotherFocaTagTool.list.ListaSeries;
+import main.java.es.octal.MotherFocaTagTool.mediaHandlers.Series;
 import main.java.org.apache.commons.net.net.ftp.FTPClient;
 import main.java.org.json.JSONArray;
 import main.java.org.json.JSONObject;
@@ -52,7 +52,7 @@ public class SeriesGUI extends JPanel implements ActionListener {
 
     // Clase
 
-    private ListaSeries listaSeries = new ListaSeries();
+    private Series series;
 
     // constructor
 
@@ -186,6 +186,8 @@ public class SeriesGUI extends JPanel implements ActionListener {
 
                 Boolean noFailGlobal = true;
 
+                series = new Series(log, showOnlyFails.isSelected());
+
                 for (int i = 0; i < listaDirectorios.size(); i++) {
 
                     // Obtenemos el i directorio de la lista
@@ -194,16 +196,14 @@ public class SeriesGUI extends JPanel implements ActionListener {
                     log.append("Indexando (" + ((i + 1)) + "/" + listaDirectorios.size() + "): " + directorio + "\n");
                     try {
 
-                        // Para cada directorio de la lista obtenemos la lista de series en forma de json
-
-                        jsonSeries = listaSeries.creaIndice(log, directorio, jsonSeries, showOnlyFails.isSelected());
+                        series.listar(directorio);
 
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     } catch (UnsupportedEncodingException e) {
                         e.printStackTrace();
                     }
-                    if (! jsonSeries.getBoolean("noFail")) {
+                    if (! series.getNoFail()) {
                         noFailGlobal = false;
                     }
                 }
@@ -228,7 +228,7 @@ public class SeriesGUI extends JPanel implements ActionListener {
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
-                writer.println(jsonSeries.toString(4));
+                writer.println(series.getJson().toString(4));
                 writer.close();
 
                 //------------------------------------------------------------------------------
@@ -236,7 +236,7 @@ public class SeriesGUI extends JPanel implements ActionListener {
                 //------------------------------------------------------------------------------
 
                 if (ftpUpload.isSelected()) {
-                    if (jsonSeries.getBoolean("noFail")) {
+                    if (series.getNoFail()) {
 
                         // El fichero de configuracion contiene configuracion sobre series
 
