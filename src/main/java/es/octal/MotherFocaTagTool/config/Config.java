@@ -71,7 +71,7 @@ public class Config extends JSONObject{
                 log.append("[ftp] Se ha cargado la configuracion\n");
             }
             else{
-                createFTP();
+                this.createFTP();
                 log.append("[ftp] Se ha creado la configuracion\n");
             }
 
@@ -89,7 +89,7 @@ public class Config extends JSONObject{
 
             }
             else{
-                createPeliculas();
+                this.createPeliculas();
                 log.append("[peliculas] Se ha creado la configuracion\n");
             }
 
@@ -106,7 +106,7 @@ public class Config extends JSONObject{
                 log.append("[series] Se ha cargado la configuracion\n");
             }
             else{
-                createSeries();
+                this.createSeries();
                 log.append("[series] Se ha creado la configuracion\n");
             }
         }
@@ -121,7 +121,7 @@ public class Config extends JSONObject{
             log.append("[config] Se ha creado la configuracion\n");
         }
 
-        save();
+        this.save();
     }
     private void createFTP(){
         ftp = new FtpConfig("", "", "");
@@ -145,7 +145,7 @@ public class Config extends JSONObject{
     }
     public void save() throws FileNotFoundException, UnsupportedEncodingException {
 
-        linkTree();
+        this.linkTree();
 
         PrintWriter writer = new PrintWriter(configFileDir, "UTF-8");
         writer.println(this.toString(4));

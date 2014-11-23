@@ -12,9 +12,10 @@ import java.util.regex.Pattern;
  */
 public class Pelicula {
 
-    private String name;
+    private String name, title, resolution, audio;
+    private int year;
+    private long size;
     private File file;
-    private JSONObject json;
 
     private String patron = "([0-9a-zA-Zá-ú-ñ\\- ]*) \\(([0-9]*)\\) \\[([0-9]*)\\] \\[(Dual|Cast|Vose)\\]";
 
@@ -36,12 +37,11 @@ public class Pelicula {
 
             // Nueva pelicula
 
-            this.json = new JSONObject();
-            this.json.put("titulo", m.group(1));
-            this.json.put("año", m.group(2));
-            this.json.put("definicion", m.group(3));
-            this.json.put("audio", m.group(4));
-            this.json.put("size", this.file.length());
+            this.title = m.group(1);
+            this.year = Integer.parseInt(m.group(2));
+            this.resolution = m.group(3);
+            this.audio = m.group(4);
+            this.size = this.file.length();
 
             return true;
         }
@@ -55,9 +55,21 @@ public class Pelicula {
         return this.name;
     }
     public JSONObject getJson(){
-        return this.json;
+
+        JSONObject json = new JSONObject();
+
+        json.put("title", this.title);
+        json.put("year", this.year);
+        json.put("resolution", this.resolution);
+        json.put("audio", this.audio);
+        json.put("size", this.size);
+
+        return json;
     }
     public String getAbsolutePath(){
         return this.file.getAbsolutePath();
+    }
+    public String getTitle(){
+        return this.title;
     }
 }

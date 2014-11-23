@@ -3,6 +3,8 @@ package main.java.es.octal.MotherFocaTagTool.mediaHandlers.peliculas;
 import main.java.org.json.JSONObject;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Alvaro on 16/09/14.
@@ -11,9 +13,8 @@ import java.io.File;
 public class Saga {
 
     private String name;
-    private JSONObject json = new JSONObject();
     private File file;
-    private int cuentaPeliculas;
+    private List<Pelicula> peliculas = new ArrayList();
 
     // Constructor
 
@@ -23,9 +24,8 @@ public class Saga {
         this.name = this.file.getName();
     }
 
-    public void addMovie(JSONObject pelicula){
-        this.json.put(pelicula.getString("titulo"), pelicula);
-        this.cuentaPeliculas++;
+    public void addMovie(Pelicula pelicula){
+        this.peliculas.add(pelicula);
     }
 
     // Get privates
@@ -37,7 +37,14 @@ public class Saga {
         return this.file.listFiles();
     }
     public JSONObject getJson(){
-        this.json.put("cuentaPeliculas", this.cuentaPeliculas);
-        return this.json;
+
+        JSONObject json = new JSONObject();
+
+        json.put("name", this.name);
+
+        for(Pelicula pelicula : this.peliculas){
+            json.put(pelicula.getTitle(), pelicula.getJson());
+        }
+        return json;
     }
 }

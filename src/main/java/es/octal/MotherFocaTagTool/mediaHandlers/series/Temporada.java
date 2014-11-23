@@ -3,6 +3,8 @@ package main.java.es.octal.MotherFocaTagTool.mediaHandlers.series;
 import main.java.org.json.JSONObject;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -12,11 +14,11 @@ import java.util.regex.Pattern;
  */
 public class Temporada{
 
-    private String name;
+    private String name, resolution, audio;
+    private int number, year;
     private File file;
-    private JSONObject json;
     private String patron;
-    private int numero, numeroCapitulos;
+    private List<Capitulo> capitulos = new ArrayList();
 
     // Construtor
 
@@ -33,15 +35,10 @@ public class Temporada{
         Matcher matcher = pattern.matcher(this.name);
         if (matcher.find()) {
 
-            // Nueva temporada
-
-            json = new JSONObject();
-
-            this.numero = Integer.parseInt(matcher.group(1));
-
-            this.json.put("año", matcher.group(2));
-            this.json.put("definicion", matcher.group(3));
-            this.json.put("audio", matcher.group(4));
+            this.number = Integer.parseInt(matcher.group(1));
+            this.year = Integer.parseInt(matcher.group(2));
+            this.resolution = matcher.group(3);
+            this.audio = matcher.group(4);
 
             return true;
         }
@@ -49,19 +46,28 @@ public class Temporada{
         return false;
     }
 
-    public void addCapitulo(JSONObject capitulo) {
-        this.json.put("capitulo " + capitulo.getInt("numero"), capitulo);
-        this.numeroCapitulos++;
+    public void addCapitulo(Capitulo capitulo) {
+        this.capitulos.add(capitulo);
     }
 
     // Get privates
 
     public JSONObject getJson(){
-        this.json.put("numeroCapitulos", this.numeroCapitulos);
-        return this.json;
+
+        JSONObject json = new JSONObject();
+
+        json.put("number", this.number);
+        json.put("year", this.year);
+        json.put("resolution", this.resolution);
+        json.put("audio", this.audio);
+
+        for(Capitulo capitulo : this.capitulos){
+            json.put("chapter " + capitulo.getNumber(), capitulo.getJson());
+        }
+        return json;
     }
-    public int getNumero(){
-        return numero;
+    public int getNumber(){
+        return number;
     }
     public File[] getList(){
         return this.file.listFiles();

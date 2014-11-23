@@ -70,7 +70,9 @@ public class Series {
                             if (temporada.verify()) {
 
                                 if (! showOnlyFails){
-                                    this.log.append(" |  + Temporada " + temporada.getNumero());
+                                    this.log.append(" |  + Temporada " + temporada.getNumber());
+                                    this.log.update(this.log.getGraphics());
+
                                     if (! showTitles){
                                         this.log.append(" - " + temporada.getList().length + " capitulos");
                                     }
@@ -88,15 +90,15 @@ public class Series {
                                         if (capitulo.verify()) {
 
                                             if (! showOnlyFails && showTitles){
-                                                this.log.append(" |   |- Capitulo " + capitulo.getNumero() + ": " + capitulo.getTitulo() + "\n");
+                                                this.log.append(" |   |- Capitulo " + capitulo.getNumber() + ": " + capitulo.getTitle() + "\n");
                                             }
 
-                                            if (temporada.getNumero() != capitulo.getNumeroTemporada()) {
+                                            if (temporada.getNumber() != capitulo.getNumeroTemporada()) {
 
                                                 this.log.append("[warn] Directorio incorrecto (" + capitulo.getAbsolutePath() + ")\n");
                                             }
 
-                                            temporada.addCapitulo(capitulo.getJson());
+                                            temporada.addCapitulo(capitulo);
                                         }
                                         else {
 
@@ -114,7 +116,7 @@ public class Series {
                                     }
                                 }
 
-                                serie.addTemporada(temporada.getJson(), temporada.getNumero());
+                                serie.addTemporada(temporada);
                             }
                             else {
 
@@ -152,8 +154,7 @@ public class Series {
 
     private void linkTree(){
         this.json.put("noFail", this.noFail);
-        this.json.put("numeroSeries", this.numeroSeries);
-        this.json.put("Series", this.series);
+        this.json.put("TV Shows", this.series);
     }
 
     // Get privates

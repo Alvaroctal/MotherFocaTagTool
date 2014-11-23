@@ -16,7 +16,7 @@ import java.io.UnsupportedEncodingException;
 
 public class Peliculas {
 
-    private boolean noFail, showOnlyFails;
+    private boolean noFail = true, showOnlyFails;
     private JSONObject json = new JSONObject();
     private JSONObject peliculas = new JSONObject();
     private JTextArea log;
@@ -65,7 +65,7 @@ public class Peliculas {
                                 this.log.setCaretPosition(this.log.getDocument().getLength());
                             }
 
-                            saga.addMovie(pelicula.getJson());
+                            saga.addMovie(pelicula);
                         }
                         else {
                             if (this.noFail) {
@@ -88,7 +88,7 @@ public class Peliculas {
                     Pelicula pelicula = new Pelicula(listOfFiles[i]);
 
                     if (pelicula.verify()) {
-                        this.peliculas.put(pelicula.getName(), pelicula.getJson());
+                        this.peliculas.put(pelicula.getJson().getString("title"), pelicula.getJson());
                         if (!showOnlyFails) {
                             this.log.append(" | [done] " + pelicula.getName() + "\n");
                             this.log.setCaretPosition(this.log.getDocument().getLength());
@@ -103,6 +103,8 @@ public class Peliculas {
                         this.log.setCaretPosition(this.log.getDocument().getLength());
                     }
                 }
+
+                this.log.update(this.log.getGraphics());
             }
 
             this.linkTree();
@@ -115,7 +117,7 @@ public class Peliculas {
 
     private void linkTree(){
         this.json.put("noFail", this.noFail);
-        this.json.put("Peliculas", this.peliculas);
+        this.json.put("Movies", this.peliculas);
     }
 
     // Get privates

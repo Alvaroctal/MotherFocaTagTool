@@ -12,11 +12,11 @@ import java.util.regex.Pattern;
  */
 public class Capitulo {
 
-    private String name, titulo;
+    private String name, title;
+    private int number, numeroTemporada;
+    private long size;
     private File file;
-    private JSONObject json;
     private String patron;
-    private int numero, numeroTemporada;
 
     // Constructor
 
@@ -24,7 +24,7 @@ public class Capitulo {
 
         this.file = file;
         this.name = this.file.getName();
-        this.patron = serie + " ([0-9]*)x([0-9]*) - ([^~.]*)";;
+        this.patron = serie + " ([0-9]*)x([0-9]*) - ([^~.]*)";
     }
 
     public boolean verify(){
@@ -33,15 +33,10 @@ public class Capitulo {
         Matcher matcher = pattern.matcher(this.name);
         if (matcher.find()) {
 
-            json = new JSONObject();
-
             this.numeroTemporada = Integer.parseInt(matcher.group(1));
-            this.numero = Integer.parseInt(matcher.group(2));
-            this.titulo = matcher.group(3);
-
-            this.json.put("numero", this.numero);
-            this.json.put("titulo", this.titulo);
-            this.json.put("size", this.file.length());
+            this.number = Integer.parseInt(matcher.group(2));
+            this.title = matcher.group(3);
+            this.size = this.file.length();
 
             return true;
         }
@@ -55,7 +50,14 @@ public class Capitulo {
         return this.name;
     }
     public JSONObject getJson(){
-        return this.json;
+
+        JSONObject json = new JSONObject();
+
+        json.put("number", this.number);
+        json.put("title", this.title);
+        json.put("size", this.size);
+
+        return json;
     }
     public String getAbsolutePath(){
         return this.file.getAbsolutePath();
@@ -63,10 +65,10 @@ public class Capitulo {
     public int getNumeroTemporada(){
         return this.numeroTemporada;
     }
-    public int getNumero(){
-        return this.numero;
+    public int getNumber(){
+        return this.number;
     }
-    public String getTitulo() {
-        return this.titulo;
+    public String getTitle() {
+        return this.title;
     }
 }

@@ -187,9 +187,7 @@ public class PeliculasGUI extends JPanel implements ActionListener {
                     String directorio = (String) listaDirectorios.get(i);
                     log.append("Indexando (" + ((i + 1)) + "/" + listaDirectorios.size() + "): " + directorio + "\n");
                     try {
-
                         peliculas.listar(directorio);
-
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     } catch (UnsupportedEncodingException e) {
@@ -197,6 +195,7 @@ public class PeliculasGUI extends JPanel implements ActionListener {
                     }
                     if (! peliculas.getNoFail()) {
                         noFailGlobal = false;
+                        System.out.print(noFailGlobal);
                     }
                 }
                 if (! noFailGlobal){
@@ -228,7 +227,7 @@ public class PeliculasGUI extends JPanel implements ActionListener {
                 //------------------------------------------------------------------------------
 
                 if (ftpUpload.isSelected()) {
-                    if (peliculas.getNoFail()) {
+                    if (noFailGlobal) {
 
                         // El fichero de configuracion contiene configuracion sobre peliculas
 
